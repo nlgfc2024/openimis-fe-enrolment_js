@@ -1,0 +1,39 @@
+{
+  "name": "@openimis/fe-enrolment",
+  "version": "0.1.0",
+  "license": "AGPL-3.0-only",
+  "description": "Dedicated openIMIS enrolment frontend module",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.es.js",
+  "scripts": {
+    "build": "vite build",
+    "prepare": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "@material-ui/core": "^4.9.14",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.58",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.0",
+    "@openimis/fe-core": "*",
+    "@openimis/fe-individual": "*",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/material": "^5.15.20",
+    "react": "*",
+    "react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0",
+    "react-redux": "*",
+    "redux": "*"
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/material": "^5.15.20",
+    "@vitejs/plugin-react": "^5.0.0",
+    "vite": "^7.1.2",
+    "vite-plugin-svgr": "^4.5.0"
+  }
+}

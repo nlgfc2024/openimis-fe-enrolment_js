@@ -1,2 +1,5 @@
-# openimis-fe-enrolment_js
-COREMIS enrolment interface for individual and household selection, eligibility filtering, ranked previews, and enrolment confirmation
+# openIMIS Enrolment frontend module
+
+Owns the enrolment routes, screens, eligibility filters, preview and confirmation
+actions, reducer state, translations, and navigation contributions. It reuses the
+generic Individual and Household search components only to display registry data.
