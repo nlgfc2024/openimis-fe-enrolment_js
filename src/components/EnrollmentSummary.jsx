@@ -1,6 +1,13 @@
 import React from 'react';
 import { Grid, Paper, Typography } from '@material-ui/core';
 import { useModulesManager, useTranslations } from '@openimis/fe-core';
+import { styled } from '@material-ui/core/styles';
+
+const SummaryTitle = styled(Typography)(({ theme }) => ({ margin: theme.spacing(1.5, 0, 1) }));
+const SummaryCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2.5), height: '100%', boxSizing: 'border-box',
+}));
+const SelectionCount = styled(Typography)(({ theme }) => ({ marginTop: theme.spacing(1.5) }));
 
 function parseRanking(value) {
   if (typeof value !== 'string') return value || {};
@@ -37,28 +44,32 @@ export default function EnrollmentSummary({ summary, household }) {
 
   return (
     <section aria-label={formatMessage('enrolment.summary')}>
-      <Typography style={{ margin: '12px 0 8px' }}>{formatMessage('enrolment.summary')}</Typography>
+      <SummaryTitle>{formatMessage('enrolment.summary')}</SummaryTitle>
       <Grid container spacing={2}>
         {cards.map(([key, value, width]) => (
           <Grid item xs={12} md={width} key={key}>
-            <Paper elevation={3} style={{ padding: 20, height: '100%', boxSizing: 'border-box' }}>
+            <SummaryCard elevation={3}>
               <Typography variant="h6" gutterBottom>{formatMessage(`enrolment.cards.${label}.${key}`)}</Typography>
               <Typography>{value ?? 0}</Typography>
-            </Paper>
+            </SummaryCard>
           </Grid>
         ))}
         {order && (
           <Grid item xs={12} md={6}>
-            <Paper elevation={3} style={{ padding: 20 }}>
+            <SummaryCard elevation={3}>
               <Typography variant="h6" gutterBottom>{formatMessage('enrolment.rankingOrder')}</Typography>
               <Typography>{order}</Typography>
-            </Paper>
+            </SummaryCard>
           </Grid>
         )}
       </Grid>
-      <Typography style={{ marginTop: 12 }}>
+      <SelectionCount>
         {formatMessageWithValues('enrolment.selectionCount', { selected, pool })}
-      </Typography>
+      </SelectionCount>
+      <SummaryCard elevation={1}>
+        <Typography variant="h6" gutterBottom>{formatMessage('enrolment.membershipRule')}</Typography>
+        <Typography>{formatMessage(household ? 'enrolment.membershipRule.groups' : 'enrolment.membershipRule.individuals')}</Typography>
+      </SummaryCard>
     </section>
   );
 }

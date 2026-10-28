@@ -40,6 +40,10 @@ export function fetchGroupEnrollmentSummary(params) {
   );
 }
 
+export function clearEnrollmentSummary(household = false) {
+  return { type: household ? ACTION_TYPE.CLEAR_GROUP_SUMMARY : ACTION_TYPE.CLEAR_INDIVIDUAL_SUMMARY };
+}
+
 function formatConfirmation(params) {
   return `
     ${params?.customFilters ? `customFilters: ${params.customFilters}` : ''}
