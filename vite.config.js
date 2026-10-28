@@ -6,7 +6,6 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [react({
     jsxRuntime: 'automatic',
-    jsxImportSource: '@emotion/react',
   })],
   build: {
     lib: {
@@ -23,10 +22,6 @@ export default defineConfig({
         /^@material-ui\//,
         /^react.*/,
         /^redux.*/,
-        /^@mui\/material/,
-        /^@mui\/icons-material/,
-        /^@emotion\/react/,
-        /^@emotion\/styled/,
       ],
     },
   },

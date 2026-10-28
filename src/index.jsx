@@ -1,8 +1,3 @@
-import React from 'react';
-import { FormattedMessage } from '@openimis/fe-core';
-import Person from '@material-ui/icons/Person';
-import People from '@material-ui/icons/People';
-import AssignmentInd from '@material-ui/icons/AssignmentInd';
 import EnrollmentPage from './pages/EnrollmentPage';
 import EnrollmentGroupPage from './pages/EnrollmentGroupPage';
 import reducer from './reducer';
@@ -10,10 +5,17 @@ import messagesEn from './translations/en.json';
 import { RIGHT_GROUP_CREATE, RIGHT_INDIVIDUAL_CREATE } from './constants';
 import GroupEnrolmentMenu from './components/GroupEnrolmentMenu';
 import IndividualEnrolmentMenu from './components/IndividualEnrolmentMenu';
+import EnrolmentMainMenu from './components/EnrolmentMainMenu';
 import AdvancedCriteriaRowValue from './components/dialogs/AdvancedCriteriaRowValue';
 
 const ROUTE_INDIVIDUAL_ENROLMENT = 'enrolment/individuals';
 const ROUTE_GROUP_ENROLMENT = 'enrolment/groups';
+
+const DEFAULT_ENROLLMENT_UI = {
+  show_mandatory_criteria_summary: true,
+  show_advanced_operator_filters: true,
+  show_enrollment_guidance: true,
+};
 
 const DEFAULT_CONFIG = {
   translations: [{ key: 'en', messages: messagesEn }],
@@ -24,7 +26,7 @@ const DEFAULT_CONFIG = {
       text: 'enrolment.menu.individuals',
       id: 'enrolment.individualEnrolment',
       component: EnrollmentPage,
-      rights: [RIGHT_INDIVIDUAL_CREATE],
+      requiredRights: [RIGHT_INDIVIDUAL_CREATE],
       icon: 'Person',
     },
     {
@@ -32,44 +34,22 @@ const DEFAULT_CONFIG = {
       text: 'enrolment.menu.groups',
       id: 'enrolment.groupEnrolment',
       component: EnrollmentGroupPage,
-      rights: [RIGHT_GROUP_CREATE],
+      requiredRights: [RIGHT_GROUP_CREATE],
       icon: 'People',
     },
     // Preserve bookmarked links while route ownership moves out of Individual.
     {
       path: 'individuals/enrollment',
       component: EnrollmentPage,
-      rights: [RIGHT_INDIVIDUAL_CREATE],
+      requiredRights: [RIGHT_INDIVIDUAL_CREATE],
     },
     {
       path: 'groups/enrollment',
       component: EnrollmentGroupPage,
-      rights: [RIGHT_GROUP_CREATE],
+      requiredRights: [RIGHT_GROUP_CREATE],
     },
   ],
-  'socialProtection.MainMenu': [
-    {
-      id: 'enrolment.menu',
-      text: <FormattedMessage module="enrolment" id="menu.title" />,
-      icon: <AssignmentInd />,
-      children: [
-        {
-          id: 'enrolment.individualEnrolment',
-          text: <FormattedMessage module="enrolment" id="menu.individuals" />,
-          icon: <Person />,
-          route: `/${ROUTE_INDIVIDUAL_ENROLMENT}`,
-          filter: (rights) => rights.includes(RIGHT_INDIVIDUAL_CREATE),
-        },
-        {
-          id: 'enrolment.groupEnrolment',
-          text: <FormattedMessage module="enrolment" id="menu.groups" />,
-          icon: <People />,
-          route: `/${ROUTE_GROUP_ENROLMENT}`,
-          filter: (rights) => rights.includes(RIGHT_GROUP_CREATE),
-        },
-      ],
-    },
-  ],
+  'core.MainMenu': [{ name: 'EnrolmentMainMenu', component: EnrolmentMainMenu }],
   'individual.IndividualsUploadDialog': IndividualEnrolmentMenu,
   'individual.group.GroupMenu': GroupEnrolmentMenu,
   refs: [
@@ -81,4 +61,16 @@ const DEFAULT_CONFIG = {
   ],
 };
 
-export const EnrolmentModule = (cfg) => ({ ...DEFAULT_CONFIG, ...cfg });
+export const EnrolmentModule = (cfg = {}) => {
+  const enrollmentUi = { ...DEFAULT_ENROLLMENT_UI, ...(cfg.enrollment_ui || {}) };
+  return {
+    ...DEFAULT_CONFIG,
+    ...cfg,
+    refs: [
+      ...DEFAULT_CONFIG.refs,
+      { key: 'enrolment.enrollmentUiConfig', ref: enrollmentUi },
+      // Temporary compatibility alias. Remove with the legacy routes after Individual FE #22 is deployed.
+      { key: 'individual.enrollmentUiConfig', ref: enrollmentUi },
+    ],
+  };
+};
