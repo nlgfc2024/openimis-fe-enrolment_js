@@ -13,6 +13,8 @@ export const ACTION_TYPE = {
   GROUP_SUMMARY: 'ENROLMENT_GROUP_SUMMARY',
   CONFIRM_INDIVIDUAL: 'ENROLMENT_CONFIRM_INDIVIDUAL',
   CONFIRM_GROUP: 'ENROLMENT_CONFIRM_GROUP',
+  CLEAR_INDIVIDUAL_SUMMARY: 'ENROLMENT_CLEAR_INDIVIDUAL_SUMMARY',
+  CLEAR_GROUP_SUMMARY: 'ENROLMENT_CLEAR_GROUP_SUMMARY',
 };
 
 const initialState = {
@@ -30,6 +32,22 @@ const initialState = {
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
+    case ACTION_TYPE.CLEAR_INDIVIDUAL_SUMMARY:
+      return {
+        ...state,
+        fetchingEnrollmentSummary: false,
+        fetchedEnrollmentSummary: false,
+        enrollmentSummary: null,
+        enrollmentSummaryError: null,
+      };
+    case ACTION_TYPE.CLEAR_GROUP_SUMMARY:
+      return {
+        ...state,
+        fetchingEnrollmentGroupSummary: false,
+        fetchedEnrollmentGroupSummary: false,
+        enrollmentGroupSummary: null,
+        enrollmentGroupSummaryError: null,
+      };
     case REQUEST(ACTION_TYPE.INDIVIDUAL_SUMMARY):
       return {
         ...state,

@@ -4,7 +4,7 @@ import React from 'react';
 import { injectIntl } from 'react-intl';
 
 import { Grid, Divider } from '@material-ui/core';
-import { useTheme, styled } from '@material-ui/core/styles';
+import { styled } from '@material-ui/core/styles';
 
 import {
   decodeId,
@@ -39,25 +39,6 @@ class EnrollmentGroupHeadPanel extends FormPanel {
     });
   };
 
-  getDefaultAppliedCustomFilters = () => {
-    const benefitPlan = this.props?.edited;
-    const jsonExt = benefitPlan?.jsonExt ?? '{}';
-    const status = benefitPlan?.status;
-    const jsonData = JSON.parse(jsonExt);
-    const filters = jsonData.advanced_criteria?.[status] || [];
-    return filters.map(({ custom_filter_condition }) => {
-      const [field, filter, typeValue] = custom_filter_condition.split('__');
-      const [type, value] = typeValue.split('=');
-      return {
-        custom_filter_condition,
-        field,
-        filter,
-        type,
-        value,
-      };
-    });
-  };
-
   setAppliedCustomFilters = (appliedCustomFilters) => {
     this.setState({ appliedCustomFilters });
   };
@@ -70,6 +51,8 @@ class EnrollmentGroupHeadPanel extends FormPanel {
     // eslint-disable-next-line no-unused-vars
     const { edited, intl } = this.props;
     const { appliedCustomFilters, appliedFiltersRowStructure } = this.state;
+    const enrollmentUi = this.props.modulesManager?.getRef('enrolment.enrollmentUiConfig')
+      || this.props.modulesManager?.getRef('individual.enrollmentUiConfig');
     return (
       <>
         <StyledGrid container className="item">
@@ -113,9 +96,9 @@ class EnrollmentGroupHeadPanel extends FormPanel {
                 appliedFiltersRowStructure={appliedFiltersRowStructure}
                 setAppliedFiltersRowStructure={this.setAppliedFiltersRowStructure}
                 updateAttributes={this.updateJsonExt}
-                getDefaultAppliedCustomFilters={this.getDefaultAppliedCustomFilters}
                 additionalParams={edited?.benefitPlan ? { benefitPlan: `${decodeId(edited.benefitPlan.id)}` } : null}
                 edited={edited}
+                enrollmentUi={enrollmentUi}
               />
             </StyledGrid>
           </>

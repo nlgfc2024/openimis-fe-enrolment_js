@@ -13,7 +13,7 @@ import {
   CustomFilterFieldStatusPicker,
 } from '@openimis/fe-core';
 import { Grid } from '@material-ui/core';
-import { useTheme, styled } from '@material-ui/core/styles';
+import { styled } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
 import {
   BOOLEAN,
@@ -27,6 +27,18 @@ import {
 // Styled component replacing withStyles/styles object
 const StyledGrid = styled(Grid)(({ theme }) => ({
   ...theme?.paper?.item,
+  backgroundColor: theme.palette.action.hover,
+  width: '100%',
+}));
+
+const RemoveFilter = styled('button')(({ theme }) => ({
+  alignSelf: 'center',
+  border: 0,
+  background: 'transparent',
+  color: theme.palette.primary.main,
+  cursor: 'pointer',
+  fontSize: theme.typography.h6.fontSize,
+  padding: theme.spacing(1),
 }));
 
 function AdvancedCriteriaRowValue({
@@ -40,7 +52,6 @@ function AdvancedCriteriaRowValue({
   setFilters,
   readOnly,
 }) {
-  const theme = useTheme();
   const onAttributeChange = (attribute) => (value) => {
     let updatedFilter = { ...currentFilter };
 
@@ -125,24 +136,9 @@ function AdvancedCriteriaRowValue({
       container
       direction="row"
       className="item"
-      style={{ backgroundColor: '#DFEDEF', width: '100%' }}
     >
       {filters.length > 0 && !readOnly ? (
-        <div style={{
-          backgroundColor: '#DFEDEF', width: '10px', height: '25px', marginTop: '25px',
-        }}
-        >
-          <span
-            style={{
-              transform: 'translate(-50%, -50%)',
-              fontSize: '16px',
-              color: '#006273',
-            }}
-            onClick={removeFilter}
-          >
-            &#x2716;
-          </span>
-        </div>
+        <RemoveFilter type="button" onClick={removeFilter} aria-label="Remove filter">&#x2716;</RemoveFilter>
       ) : (<></>)}
       <StyledGrid item xs={12} md={3} className="item">
         <CustomFilterFieldStatusPicker
