@@ -1,13 +1,15 @@
 /* eslint-disable max-len */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { injectIntl } from 'react-intl';
-import { Button, Divider, Typography } from '@material-ui/core';
+import {
+  Backdrop, Button, CircularProgress, Divider, Typography,
+} from '@material-ui/core';
 import AddCircle from '@material-ui/icons/AddCircle';
 import Alert from '@material-ui/lab/Alert';
 import { styled } from '@material-ui/core/styles';
 import {
   clearConfirm, coreAlert, coreConfirm, decodeId, fetchCustomFilter, formatMessage,
-  formatMessageWithValues, LoadingOverlay,
+  formatMessageWithValues,
 } from '@openimis/fe-core';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -33,6 +35,10 @@ const Actions = styled('div')(({ theme }) => ({
 const SummaryActions = styled('div')(({ theme }) => ({
   display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: theme.spacing(2),
   padding: theme.spacing(3, 0),
+}));
+const LoadingBackdrop = styled(Backdrop)(({ theme }) => ({
+  zIndex: theme.zIndex.modal + 1,
+  color: theme.palette.common.white,
 }));
 
 function responseError(response) {
@@ -240,7 +246,9 @@ export function EnrollmentCriteriaForm({
 
   return (
     <>
-      <LoadingOverlay open={isSubmitting || isPreviewing} label={formatMessage(intl, 'core', 'loading')} />
+      <LoadingBackdrop open={isSubmitting || isPreviewing} aria-label={formatMessage(intl, 'core', 'loading')}>
+        <CircularProgress color="inherit" />
+      </LoadingBackdrop>
       {showMandatoryCriteria && phaseCriteria.length > 0 && <Typography variant="subtitle1">{formatMessage(intl, 'enrolment', 'enrolment.mandatoryCriteria')}</Typography>}
       {showMandatoryCriteria && phaseCriteria.map((filter, index) => (
         <AdvancedCriteriaRowValue key={`mandatory-${filter.custom_filter_condition || index}`} customFilters={customFilters}
