@@ -1,3 +1,8 @@
+import React from 'react';
+import { FormattedMessage } from '@openimis/fe-core';
+import AssignmentInd from '@material-ui/icons/AssignmentInd';
+import Person from '@material-ui/icons/Person';
+import People from '@material-ui/icons/People';
 import EnrollmentPage from './pages/EnrollmentPage';
 import EnrollmentGroupPage from './pages/EnrollmentGroupPage';
 import reducer from './reducer';
@@ -5,7 +10,6 @@ import messagesEn from './translations/en.json';
 import { RIGHT_GROUP_CREATE, RIGHT_INDIVIDUAL_CREATE } from './constants';
 import GroupEnrolmentMenu from './components/GroupEnrolmentMenu';
 import IndividualEnrolmentMenu from './components/IndividualEnrolmentMenu';
-import EnrolmentMainMenu from './components/EnrolmentMainMenu';
 import AdvancedCriteriaRowValue from './components/dialogs/AdvancedCriteriaRowValue';
 
 const ROUTE_INDIVIDUAL_ENROLMENT = 'enrolment/individuals';
@@ -49,7 +53,29 @@ const DEFAULT_CONFIG = {
       requiredRights: [RIGHT_GROUP_CREATE],
     },
   ],
-  'core.MainMenu': [{ name: 'EnrolmentMainMenu', component: EnrolmentMainMenu }],
+  'socialProtection.MainMenu': [
+    {
+      id: 'enrolment.menu',
+      text: <FormattedMessage module="enrolment" id="menu.title" />,
+      icon: <AssignmentInd />,
+      children: [
+        {
+          id: 'enrolment.individualEnrolment',
+          text: <FormattedMessage module="enrolment" id="menu.individuals" />,
+          icon: <Person />,
+          route: `/${ROUTE_INDIVIDUAL_ENROLMENT}`,
+          filter: (rights) => rights.includes(RIGHT_INDIVIDUAL_CREATE),
+        },
+        {
+          id: 'enrolment.groupEnrolment',
+          text: <FormattedMessage module="enrolment" id="menu.groups" />,
+          icon: <People />,
+          route: `/${ROUTE_GROUP_ENROLMENT}`,
+          filter: (rights) => rights.includes(RIGHT_GROUP_CREATE),
+        },
+      ],
+    },
+  ],
   'individual.IndividualsUploadDialog': IndividualEnrolmentMenu,
   'individual.group.GroupMenu': GroupEnrolmentMenu,
   refs: [
