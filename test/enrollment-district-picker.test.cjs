@@ -27,37 +27,44 @@ test('district IDs accept numeric and Relay IDs and reject invalid input', () =>
   }
 });
 
-test('picker restores saved labels, emits numeric IDs, clears, and respects readOnly', async () => {
-  let props;
-  const queries = [];
-  const district = { id: Buffer.from('LocationGQLType:123').toString('base64'), code: 'A', name: 'District A' };
-  const dispatch = async (query) => {
-    queries.push(query);
-    return { payload: { data: { locations: { edges: [{ node: district }] } } } };
-  };
-  const Picker = load(path.join(__dirname, '../src/components/dialogs/EnrollmentDistrictPicker.jsx'), {
-    'react-redux': { useDispatch: () => dispatch },
-    '@openimis/fe-core': {
-      graphql: (q) => q,
-      useTranslations: () => ({ formatMessage: (k) => k }),
-      PublishedComponent: (p) => { props = p; return null; },
-    },
-    '../../utils': { districtLocationId },
-  }).default;
-  const container = document.createElement('div');
-  const values = [];
-  await act(async () => ReactDOM.render(React.createElement(Picker, {
-    value: '123', onChange: (v) => values.push(v), readOnly: true,
-  }), container));
-  assert.equal(props.pubRef, 'location.MwDistrictPicker');
-  assert.equal(Object.hasOwn(props, 'locationLevel'), false);
-  assert.equal(props.multiple, false);
-  assert.equal(props.readOnly, true);
-  assert.equal(props.value.name, 'District A');
-  assert.match(queries[0], /id: 123, type: "R"/);
-  act(() => props.onChange(district));
-  act(() => props.onChange(null));
-  assert.deepEqual(values, [123, '']);
-  act(() => { ReactDOM.unmountComponentAtNode(container); });
-});
+for (const savedValue of ['123', Buffer.from('LocationGQLType:123').toString('base64')]) {
+  test(`picker restores saved district ${savedValue} via Relay lookup and uses its own label`, async () => {
+    let props;
+    const queries = [];
+    const district = { id: Buffer.from('LocationGQLType:123').toString('base64'), code: 'A', name: 'District A' };
+    const dispatch = async (query) => {
+      queries.push(query);
+      const globalId = query.match(/locations\(id: "([^"]+)"/)?.[1];
+      if (!globalId || Buffer.from(globalId, 'base64').toString() !== 'LocationGQLType:123') {
+        return { payload: { errors: [{ message: 'Invalid ID specified.' }] } };
+      }
+      return { payload: { data: { locations: { edges: [{ node: district }] } } } };
+    };
+    const Picker = load(path.join(__dirname, '../src/components/dialogs/EnrollmentDistrictPicker.jsx'), {
+      'react-redux': { useDispatch: () => dispatch },
+      '@openimis/fe-core': {
+        graphql: (q) => q,
+        PublishedComponent: (p) => { props = p; return null; },
+      },
+      '../../utils': { districtLocationId },
+    }).default;
+    const container = document.createElement('div');
+    const values = [];
+    await act(async () => ReactDOM.render(React.createElement(Picker, {
+      value: savedValue, onChange: (v) => values.push(v), readOnly: true,
+    }), container));
+    assert.equal(props.pubRef, 'location.MwDistrictPicker');
+    assert.equal(Object.hasOwn(props, 'locationLevel'), false);
+    assert.equal(Object.hasOwn(props, 'label'), false);
+    assert.equal(props.multiple, false);
+    assert.equal(props.readOnly, true);
+    assert.equal(props.value.name, 'District A');
+    assert.equal(queries.length, 1);
+    assert.ok(queries[0].includes(`id: "${district.id}", type: "R"`));
+    act(() => props.onChange(district));
+    act(() => props.onChange(null));
+    assert.deepEqual(values, [123, '']);
+    act(() => { ReactDOM.unmountComponentAtNode(container); });
+  });
+}
 test.after(() => dom.window.close());
