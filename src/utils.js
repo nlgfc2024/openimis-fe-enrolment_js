@@ -1,3 +1,16 @@
+import { decodeId } from '@openimis/fe-core';
+
+export function districtLocationId(value) {
+  if (value === '' || value === null || value === undefined) return null;
+  const text = String(value);
+  let decoded = text;
+  if (!/^[1-9][0-9]*$/.test(text)) {
+    try { decoded = String(decodeId(text)); } catch (error) { return null; }
+  }
+  const id = Number(decoded);
+  return /^[1-9][0-9]*$/.test(decoded) && Number.isSafeInteger(id) && id <= 2147483647 ? id : null;
+}
+
 export function isBase64Encoded(value) {
   return /^[A-Za-z0-9+/=]+$/.test(value);
 }
@@ -60,7 +73,9 @@ export function normalizeAdvancedCriteria(value) {
 export function toCustomFilterConditions(filters = []) {
   return filters
     .filter((filter) => !filter.locked && filter.field && filter.filter && filter.type)
+    .filter((filter) => filter.field !== 'district_id' || districtLocationId(filter.value) !== null)
     .map((filter) => {
+      if (filter.field === 'district_id') return `district_id__exact__integer=${districtLocationId(filter.value)}`;
       const value = filter.type === 'string'
         ? JSON.stringify(String(filter.value ?? ''))
         : filter.value;
