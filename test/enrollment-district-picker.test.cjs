@@ -49,8 +49,8 @@ test('picker restores saved labels, emits numeric IDs, clears, and respects read
   await act(async () => ReactDOM.render(React.createElement(Picker, {
     value: '123', onChange: (v) => values.push(v), readOnly: true,
   }), container));
-  assert.equal(props.pubRef, 'location.LocationPicker');
-  assert.equal(props.locationLevel, 0);
+  assert.equal(props.pubRef, 'location.MwDistrictPicker');
+  assert.equal(Object.hasOwn(props, 'locationLevel'), false);
   assert.equal(props.multiple, false);
   assert.equal(props.readOnly, true);
   assert.equal(props.value.name, 'District A');

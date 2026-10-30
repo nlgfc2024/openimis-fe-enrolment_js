@@ -31,8 +31,7 @@ export default function EnrollmentDistrictPicker({ value, onChange, readOnly }) 
 
   return (
     <PublishedComponent
-      pubRef="location.LocationPicker"
-      locationLevel={0}
+      pubRef="location.MwDistrictPicker"
       multiple={false}
       value={location}
       readOnly={readOnly}
