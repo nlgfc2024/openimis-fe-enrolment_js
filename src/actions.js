@@ -17,6 +17,7 @@ const INDIVIDUAL_SUMMARY_PROJECTION = [
 ];
 
 const GROUP_SUMMARY_PROJECTION = [
+  'verifiedUnenrolledHouseholds', 'phaseTarget', 'enrolledHouseholds',
   'totalNumberOfGroups',
   'numberOfSelectedGroups',
   'numberOfGroupsAssignedToProgramme',
