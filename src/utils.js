@@ -129,3 +129,14 @@ export function previewMatchesSelection(snapshot, benefitPlanId, status, conditi
   return Boolean(snapshot)
     && snapshot.selectionKey === createPreviewSelectionKey(benefitPlanId, status, conditions);
 }
+
+export function enrolmentFilterDefinitions(definitions = [], household, enabled) {
+  const ordinary = definitions.filter((entry) => entry.field !== 'district_id');
+  return household && enabled === true
+    ? [...ordinary, { field: 'district_id', type: 'integer', filter: ['exact'] }]
+    : ordinary;
+}
+
+export function enabledOperatorFilters(filters = [], household, enabled) {
+  return filters.filter((entry) => entry.field !== 'district_id' || (household && enabled === true));
+}

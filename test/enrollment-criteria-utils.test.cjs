@@ -7,7 +7,7 @@ const source = fs.readFileSync(path.join(__dirname, '../src/utils.js'), 'utf8')
   .replace(/import .*?;\n/g, '')
   .replaceAll('export function ', 'function ');
 const names = [
-  'createEnrollmentCriteriaState', 'createPreviewSnapshot', 'normalizeAdvancedCriteria',
+  'enrolmentFilterDefinitions', 'enabledOperatorFilters', 'createEnrollmentCriteriaState', 'createPreviewSnapshot', 'normalizeAdvancedCriteria',
   'normalizeCriterion', 'previewMatchesSelection', 'safeParseJsonObject',
   'toCustomFilterConditions', 'toGraphQLStringLiterals', 'updateEnrollmentJsonExt',
 ];
@@ -81,4 +81,18 @@ test('district conditions omit empty selection and serialize numeric and Relay I
   for (const value of [123, Buffer.from('LocationGQLType:123').toString('base64')]) {
     assert.deepEqual(toCustomFilterConditions([{ ...row, value }]), ['district_id__exact__integer=123']);
   }
+});
+
+
+test('district discovery is configuration-based, household-only, and overrides legacy schema discovery', () => {
+  const { enrolmentFilterDefinitions, enabledOperatorFilters } = load();
+  const ordinary = { field: 'score', type: 'integer', filter: ['exact', 'gte'] };
+  const district = { field: 'district_id', type: 'string', filter: ['contains'] };
+  assert.deepEqual(enrolmentFilterDefinitions([ordinary], true, true), [ordinary, { field: 'district_id', type: 'integer', filter: ['exact'] }]);
+  for (const enabled of [false, undefined, 'true']) {
+    assert.deepEqual(enrolmentFilterDefinitions([ordinary, district], true, enabled), [ordinary]);
+    assert.deepEqual(enabledOperatorFilters([ordinary, district], true, enabled), [ordinary]);
+  }
+  assert.deepEqual(enrolmentFilterDefinitions([ordinary, district], false, true), [ordinary]);
+  assert.deepEqual(enabledOperatorFilters([district], true, true), [district]);
 });

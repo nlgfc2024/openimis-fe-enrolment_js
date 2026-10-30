@@ -20,6 +20,7 @@ import GroupPreviewEnrollmentDialog from './GroupPreviewEnrollmentDialog';
 import { CLEARED_STATE_FILTER, INDIVIDUAL } from '../../constants';
 import {
   createEnrollmentCriteriaState, createPreviewSelectionKey, createPreviewSnapshot,
+  enrolmentFilterDefinitions, enabledOperatorFilters,
   isBase64Encoded, isEmptyObject, normalizeAdvancedCriteria, previewMatchesSelection,
   safeParseJsonObject, toCustomFilterConditions, toGraphQLStringLiterals, updateEnrollmentJsonExt,
 } from '../../utils';
@@ -78,13 +79,16 @@ export function EnrollmentCriteriaForm({
   const benefitPlanId = object?.id ? decodeId(object.id) : null;
   const showMandatoryCriteria = enrollmentUi?.show_mandatory_criteria_summary ?? true;
   const showOperatorFilters = enrollmentUi?.show_advanced_operator_filters ?? true;
+  const districtEnabled = household && enrollmentUi?.enable_household_district_filter === true;
+  const availableFilters = enrolmentFilterDefinitions(customFilters, household, districtEnabled);
+  const visibleOperators = enabledOperatorFilters(operatorFilters, household, districtEnabled);
   const operatorConditions = useMemo(
-    () => (showOperatorFilters ? toCustomFilterConditions(operatorFilters) : []),
-    [operatorFilters, showOperatorFilters],
+    () => (showOperatorFilters ? toCustomFilterConditions(enabledOperatorFilters(operatorFilters, household, districtEnabled)) : []),
+    [operatorFilters, showOperatorFilters, household, districtEnabled],
   );
   const selectionKey = createPreviewSelectionKey(benefitPlanId, status, operatorConditions);
   selectionKeyRef.current = selectionKey;
-  const filters = [...phaseCriteria, ...operatorFilters];
+  const filters = [...phaseCriteria, ...visibleOperators];
   const summaryKey = household ? 'groupEnrollmentSummary' : 'individualEnrollmentSummary';
   const fetchSummary = household ? fetchGroupSummary : fetchIndividualSummary;
   const submitEnrollment = household ? submitGroups : submitIndividuals;
@@ -251,13 +255,13 @@ export function EnrollmentCriteriaForm({
       </LoadingBackdrop>
       {showMandatoryCriteria && phaseCriteria.length > 0 && <Typography variant="subtitle1">{formatMessage(intl, 'enrolment', 'enrolment.mandatoryCriteria')}</Typography>}
       {showMandatoryCriteria && phaseCriteria.map((filter, index) => (
-        <AdvancedCriteriaRowValue key={`mandatory-${filter.custom_filter_condition || index}`} customFilters={customFilters}
+        <AdvancedCriteriaRowValue key={`mandatory-${filter.custom_filter_condition || index}`} customFilters={availableFilters}
           currentFilter={filter} setCurrentFilter={setCurrentFilter} index={index} filters={filters}
           setFilters={updateOperatorFilters} readOnly />
       ))}
       {showOperatorFilters && <Typography variant="subtitle1">{formatMessage(intl, 'enrolment', 'enrolment.additionalFilters')}</Typography>}
-      {showOperatorFilters && operatorFilters.map((filter, index) => (
-        <AdvancedCriteriaRowValue key={`operator-${index}`} customFilters={customFilters} currentFilter={filter}
+      {showOperatorFilters && visibleOperators.map((filter, index) => (
+        <AdvancedCriteriaRowValue key={`operator-${index}`} customFilters={availableFilters} currentFilter={filter}
           setCurrentFilter={setCurrentFilter} index={phaseCriteria.length + index} filters={filters}
           setFilters={updateOperatorFilters} readOnly={isSubmitting} />
       ))}

@@ -88,7 +88,11 @@ const DEFAULT_CONFIG = {
 };
 
 export const EnrolmentModule = (cfg = {}) => {
-  const enrollmentUi = { ...DEFAULT_ENROLLMENT_UI, ...(cfg.enrollment_ui || {}) };
+  const enrollmentUi = {
+    ...DEFAULT_ENROLLMENT_UI,
+    ...(cfg.enrollment_ui || {}),
+    enable_household_district_filter: cfg.enable_household_district_filter === true,
+  };
   return {
     ...DEFAULT_CONFIG,
     ...cfg,

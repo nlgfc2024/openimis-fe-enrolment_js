@@ -14,13 +14,14 @@ const utils = load(path.join(__dirname, '../src/utils.js'), { '@openimis/fe-core
 const plain = ({ children, ...props }) => React.createElement('div', null, children);
 const button = ({ children, onClick, disabled }) => React.createElement('button', { onClick, disabled }, children);
 const noop = () => {};
+let rowProps;
 const Form = load(path.join(__dirname, '../src/components/dialogs/EnrollmentCriteriaForm.jsx'), {
   '@material-ui/core': { Backdrop: plain, Button: button, CircularProgress: plain, Divider: plain, Typography: plain },
   '@material-ui/core/styles': { styled: (component) => () => component },
   '@material-ui/icons/AddCircle': { __esModule: true, default: plain }, '@material-ui/lab/Alert': { __esModule: true, default: plain },
   '@openimis/fe-core': { decodeId: (id) => id, formatMessage: (_intl, _module, key) => key, formatMessageWithValues: (_intl, _module, key) => key },
   'react-intl': { injectIntl: (component) => component }, 'react-redux': { connect: () => (component) => component },
-  './AdvancedCriteriaRowValue': { __esModule: true, default: plain }, '../EnrollmentSummary': { __esModule: true, default: ({ summary }) => React.createElement('output', null, summary.willEnrol) },
+  './AdvancedCriteriaRowValue': { __esModule: true, default: (props) => { rowProps = props; return null; } }, '../EnrollmentSummary': { __esModule: true, default: ({ summary }) => React.createElement('output', null, summary.willEnrol) },
   './IndividualPreviewEnrollmentDialog': { __esModule: true, default: plain }, './GroupPreviewEnrollmentDialog': { __esModule: true, default: plain },
   '../../constants': { CLEARED_STATE_FILTER: { field: '', filter: '', type: '', value: '' }, INDIVIDUAL: 'Individual' },
   'redux': { bindActionCreators: (actions) => actions }, '../../utils': utils, '../../actions': {},
@@ -56,5 +57,34 @@ test('shared form ignores late results, rejects errors and requires preview for 
   props = { ...props, object: { id: 'phase-b' }, edited: { status: 'ACTIVE', benefitPlan: { id: 'phase-b' } } }; await render();
   assert.equal(container.querySelector('output'), null);
   assert.equal(submitted.length, 0);
+  await act(async () => ReactDOM.unmountComponentAtNode(container)); container.remove();
+});
+
+
+test('config enables district without a schema and disabling it clears the current preview and submitted condition', async () => {
+  const container = document.createElement('div'); document.body.appendChild(container);
+  const district = { field: 'district_id', filter: 'exact', type: 'integer', value: 123 };
+  const queries = [];
+  let props = {
+    intl: {}, household: true, object: { id: 'phase-a' }, customFilters: [],
+    objectToSave: { jsonExt: JSON.stringify({ advanced_criteria: { ACTIVE: [district] } }) },
+    edited: { status: 'ACTIVE', benefitPlan: { id: 'phase-a' } },
+    enrollmentUi: { enable_household_district_filter: true },
+    moduleName: 'individual', objectType: 'Group', fetchCustomFilter: noop,
+    setAppliedCustomFilters: noop, setAppliedFiltersRowStructure: noop, updateAttributes: noop,
+    clearEnrollmentSummary: noop, clearConfirm: noop, coreAlert: noop, coreConfirm: noop, rights: [],
+    fetchGroupEnrollmentSummary: (params) => { queries.push(params); return Promise.resolve({ payload: { data: { groupEnrollmentSummary: { willEnrol: 1 } } } }); },
+  };
+  const render = async () => { await act(async () => ReactDOM.render(React.createElement(Form, props), container)); };
+  const preview = async () => { await act(async () => [...container.querySelectorAll('button')].find((b) => b.textContent === 'enrolment.previewEnrollment').click()); };
+  await render();
+  assert.deepEqual(rowProps.customFilters, [{ field: 'district_id', type: 'integer', filter: ['exact'] }]);
+  await preview();
+  assert.ok(queries[0].join(' ').includes('district_id__exact__integer=123'));
+  assert.ok(container.querySelector('output'));
+  props = { ...props, enrollmentUi: { enable_household_district_filter: false } }; await render();
+  assert.equal(container.querySelector('output'), null);
+  await preview();
+  assert.ok(!queries[1].join(' ').includes('district_id'));
   await act(async () => ReactDOM.unmountComponentAtNode(container)); container.remove();
 });
