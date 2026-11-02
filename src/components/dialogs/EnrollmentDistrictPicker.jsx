@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { PublishedComponent, graphql } from '@openimis/fe-core';
+import { PublishedComponent, graphql, encodeId, useModulesManager } from '@openimis/fe-core';
 import { districtLocationId } from '../../utils';
 
 export default function EnrollmentDistrictPicker({ value, onChange, readOnly }) {
   const dispatch = useDispatch();
+  const modulesManager = useModulesManager();
   const [location, setLocation] = useState(null);
 
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function EnrollmentDistrictPicker({ value, onChange, readOnly }) 
     if (districtLocationId(location?.id) !== id) {
       setLocation(null);
       dispatch(graphql(
-        `{ locations(id: "${btoa(`LocationGQLType:${id}`)}", type: "R", first: 1) { edges { node { id uuid code name type } } } }`,
+        `{ locations(id: "${encodeId(modulesManager, 'location.LocationGQLType', id)}", type: "R", first: 1) { edges { node { id uuid code name type } } } }`,
         'ENROLLMENT_DISTRICT_LOOKUP',
       )).then((response) => {
         if (active && !response?.error && !response?.payload?.errors?.length) {
@@ -26,7 +27,7 @@ export default function EnrollmentDistrictPicker({ value, onChange, readOnly }) 
       }).catch(() => { if (active) setLocation(null); });
     }
     return () => { active = false; };
-  }, [value, dispatch]);
+  }, [value, dispatch, modulesManager]);
 
   return (
     <PublishedComponent

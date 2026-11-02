@@ -31,6 +31,12 @@ for (const savedValue of ['123', Buffer.from('LocationGQLType:123').toString('ba
   test(`picker restores saved district ${savedValue} via Relay lookup and uses its own label`, async () => {
     let props;
     const queries = [];
+    const modulesManager = {
+      getRef: (type) => {
+        assert.equal(type, 'location.LocationGQLType');
+        return 'LocationGQLType';
+      },
+    };
     const district = { id: Buffer.from('LocationGQLType:123').toString('base64'), code: 'A', name: 'District A' };
     const dispatch = async (query) => {
       queries.push(query);
@@ -44,6 +50,11 @@ for (const savedValue of ['123', Buffer.from('LocationGQLType:123').toString('ba
       'react-redux': { useDispatch: () => dispatch },
       '@openimis/fe-core': {
         graphql: (q) => q,
+        useModulesManager: () => modulesManager,
+        encodeId: (manager, type, id) => {
+          assert.equal(manager, modulesManager);
+          return Buffer.from(`${manager.getRef(type)}:${id}`).toString('base64');
+        },
         PublishedComponent: (p) => { props = p; return null; },
       },
       '../../utils': { districtLocationId },
