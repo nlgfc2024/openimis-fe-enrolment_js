@@ -31,7 +31,11 @@ export default function EnrollmentSummary({ summary, household }) {
   const order = (ranking.order_by || []).map((entry) => (
     typeof entry === 'string' ? entry : `${entry.field} ${entry.direction || 'asc'}`
   )).join(', ');
-  const cards = [
+  const cards = household ? [
+    ['verifiedUnenrolledHouseholds', summary.verifiedUnenrolledHouseholds, 4],
+    ['phaseTarget', summary.phaseTarget ?? formatMessage('enrolment.targetNotConfigured'), 4],
+    ['enrolledHouseholds', summary.enrolledHouseholds, 4],
+  ] : [
     ['eligible', pool, 4],
     ['maximum', summary.capApplied ?? formatMessage('enrolment.noLimit'), 4],
     ['selected', selected, 4],

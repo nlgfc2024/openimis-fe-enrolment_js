@@ -3,9 +3,11 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React from 'react';
+import EnrollmentDistrictPicker from './EnrollmentDistrictPicker';
 import { injectIntl } from 'react-intl';
 import {
   PublishedComponent,
+  formatMessage,
   TextInput,
   NumberInput,
   SelectInput,
@@ -42,9 +44,8 @@ const RemoveFilter = styled('button')(({ theme }) => ({
 }));
 
 function AdvancedCriteriaRowValue({
-  // eslint-disable-next-line no-unused-vars
   intl,
-  customFilters,
+  customFilters = [],
   currentFilter,
   setCurrentFilter,
   index,
@@ -68,6 +69,7 @@ function AdvancedCriteriaRowValue({
       ...updatedFilter,
       [attribute]: attributeValue,
       ...(attribute === 'filter' && { value: '' }),
+      ...(attribute === 'field' && value.field === 'district_id' && { filter: 'exact', type: 'integer' }),
     };
 
     setCurrentFilter(updatedFilter);
@@ -92,6 +94,8 @@ function AdvancedCriteriaRowValue({
       value: currentFilter.value,
       onChange: onAttributeChange('value'),
     };
+
+    if (currentFilter.field === 'district_id') return <EnrollmentDistrictPicker {...commonProps} readOnly={readOnly} />;
 
     switch (type) {
       case BOOLEAN:
@@ -152,7 +156,10 @@ function AdvancedCriteriaRowValue({
       </StyledGrid>
       {currentFilter.field !== '' ? (
         <StyledGrid item xs={12} md={3} className="item">
-          <CustomFilterTypeStatusPicker
+          {currentFilter.field === 'district_id' ? (
+            <TextInput module="enrolment" label="enrolment.filterOperator"
+              value={formatMessage(intl, 'core', 'advancedFilters.districtEquals')} readOnly />
+          ) : <CustomFilterTypeStatusPicker
             module="enrolment"
             label="enrolment.filterOperator"
             value={currentFilter.filter}
@@ -160,7 +167,7 @@ function AdvancedCriteriaRowValue({
             customFilters={customFilters}
             customFilterField={currentFilter.field}
             readOnly={readOnly}
-          />
+          />}
         </StyledGrid>
       ) : (<></>)}
       {currentFilter.field !== '' && currentFilter.filter !== '' ? (

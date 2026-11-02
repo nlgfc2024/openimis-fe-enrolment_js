@@ -25,3 +25,13 @@ generic Individual and Household search components only to display registry data
   route references remain protected compatibility aliases. Remove them only
   after bookmarks and dependent modules have migrated to `/enrolment/individuals`
   and `/enrolment/groups`.
+
+## Optional household district filter
+
+Set `enable_household_district_filter: true` at the top level of the exposed
+`fe-enrolment` module configuration to offer District (R) in household operator
+filters. It defaults to false and is independent of the Phase beneficiary schema.
+Also enable the same flag in backend `enrolment` configuration: the backend remains
+authoritative and rejects district requests while disabled. No Phase schema or
+Social Protection creation-default edits are needed. Saved district operator values
+are omitted while the frontend flag is disabled; stale previews are invalidated.

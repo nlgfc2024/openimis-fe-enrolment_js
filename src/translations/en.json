@@ -65,5 +65,9 @@
   "enrolment.cards.individuals.matching": "Individuals matching the criteria",
   "enrolment.cards.individuals.assignedAny": "Matching people already in any benefit plan",
   "enrolment.cards.individuals.unassigned": "Matching people not in any benefit plan",
-  "enrolment.cards.individuals.assignedPhase": "Matching people already in this benefit plan"
+  "enrolment.cards.individuals.assignedPhase": "Matching people already in this benefit plan",
+  "enrolment.cards.households.verifiedUnenrolledHouseholds": "Verified unenrolled households",
+  "enrolment.cards.households.phaseTarget": "Phase target",
+  "enrolment.cards.households.enrolledHouseholds": "Enrolled households",
+  "enrolment.targetNotConfigured": "Not configured"
 }
