@@ -1,5 +1,6 @@
 import React from 'react';
-import { MenuItem } from '@material-ui/core';
+import { Button } from '@material-ui/core';
+import PersonAdd from '@material-ui/icons/PersonAdd';
 import { injectIntl } from 'react-intl';
 import {
   useModulesManager,
@@ -7,11 +8,6 @@ import {
   withHistory,
   historyPush,
 } from '@openimis/fe-core';
-import { styled } from '@material-ui/core/styles';
-
-const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
-  ...theme?.paper?.item,
-}));
 
 function GroupEnrolmentMenu({
   intl,
@@ -20,13 +16,16 @@ function GroupEnrolmentMenu({
   const modulesManager = useModulesManager();
 
   return (
-    <StyledMenuItem
+    <Button
+      variant="contained"
+      color="primary"
+      startIcon={<PersonAdd />}
+      style={{ minHeight: 42, padding: '6px 16px' }}
       onClick={() => historyPush(modulesManager, history, 'enrolment.route.group')}
     >
       {formatMessage(intl, 'enrolment', 'enrolment.buttonLabel')}
-    </StyledMenuItem>
+    </Button>
   );
 }
 
-export { StyledMenuItem };
 export default injectIntl(withHistory(GroupEnrolmentMenu));
