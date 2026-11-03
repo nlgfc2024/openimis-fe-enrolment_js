@@ -1,26 +1,26 @@
 import React from 'react';
-import { MenuItem } from '@material-ui/core';
-import { styled } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core';
+import PersonAdd from '@material-ui/icons/PersonAdd';
 import { injectIntl } from 'react-intl';
 import {
-  formatMessage,
-  historyPush,
   useModulesManager,
+  formatMessage,
   withHistory,
+  historyPush,
 } from '@openimis/fe-core';
-
-const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
-  ...theme?.paper?.item,
-}));
 
 function IndividualEnrolmentMenu({ intl, history }) {
   const modulesManager = useModulesManager();
   return (
-    <StyledMenuItem
+    <Button
+      variant="contained"
+      color="primary"
+      size="medium"
+      startIcon={<PersonAdd />}
       onClick={() => historyPush(modulesManager, history, 'enrolment.route.individual')}
     >
       {formatMessage(intl, 'enrolment', 'enrolment.buttonLabel')}
-    </StyledMenuItem>
+    </Button>
   );
 }
 
