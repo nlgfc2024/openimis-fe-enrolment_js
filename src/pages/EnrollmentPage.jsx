@@ -6,6 +6,7 @@ import { styled } from '@material-ui/core/styles';
 
 import {
   Form,
+  InfoBanner,
   useHistory,
   useModulesManager,
   useTranslations,
@@ -26,6 +27,11 @@ function EnrollmentPage({
   const modulesManager = useModulesManager();
   const history = useHistory();
   const { formatMessage } = useTranslations('enrolment', modulesManager);
+  const { formatMessage: formatIndividualMessage } = useTranslations('individual', modulesManager);
+  const enrollmentUi = modulesManager.getRef('enrolment.enrollmentUiConfig')
+    || modulesManager.getRef('individual.enrollmentUiConfig')
+    || {};
+  const showEnrollmentGuidance = enrollmentUi.show_enrollment_guidance ?? true;
 
   const [editedEnrollment, setEditedEnrollment] = useState({
     status: DEFAULT_BENEFICIARY_STATUS,
@@ -37,6 +43,11 @@ function EnrollmentPage({
 
   return (
     <StyledDiv>
+      {showEnrollmentGuidance && (
+        <InfoBanner title={formatIndividualMessage('individual.enrollment.guidance.title')}>
+          {formatIndividualMessage('individual.enrollment.guidance.individual')}
+        </InfoBanner>
+      )}
       <Form
         key=""
         module="enrolment"
