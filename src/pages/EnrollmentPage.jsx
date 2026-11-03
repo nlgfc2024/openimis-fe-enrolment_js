@@ -13,6 +13,7 @@ import {
   clearConfirm,
   journalize,
 } from '@openimis/fe-core';
+import EnrollmentGuidanceBanner from '../components/EnrollmentGuidanceBanner';
 import EnrollmentHeadPanel from '../components/EnrollmentHeadPanel';
 import { DEFAULT_BENEFICIARY_STATUS } from '../constants';
 
@@ -37,6 +38,7 @@ function EnrollmentPage({
 
   return (
     <StyledDiv>
+      <EnrollmentGuidanceBanner />
       <Form
         key=""
         module="enrolment"
