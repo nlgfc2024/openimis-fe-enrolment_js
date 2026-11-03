@@ -19,8 +19,8 @@ function GroupEnrolmentMenu({
     <Button
       variant="contained"
       color="primary"
+      size="medium"
       startIcon={<PersonAdd />}
-      style={{ minHeight: 42, padding: '6px 16px' }}
       onClick={() => historyPush(modulesManager, history, 'enrolment.route.group')}
     >
       {formatMessage(intl, 'enrolment', 'enrolment.buttonLabel')}
