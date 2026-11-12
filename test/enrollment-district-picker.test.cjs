@@ -15,7 +15,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const { act } = require('react-dom/test-utils');
 const load = require('./load-es-module.cjs');
-const { districtLocationId } = load(path.join(__dirname, '../src/utils.js'), {
+const { districtLocationId } = load(path.join(__dirname, '../src/util/enrolment-utils.js'), {
   '@openimis/fe-core': { decodeId: (v) => Buffer.from(v, 'base64').toString().split(':')[1] },
 });
 
@@ -57,7 +57,7 @@ for (const savedValue of ['123', Buffer.from('LocationGQLType:123').toString('ba
         },
         PublishedComponent: (p) => { props = p; return null; },
       },
-      '../../utils': { districtLocationId },
+      '../../util/enrolment-utils': { districtLocationId },
     }).default;
     const container = document.createElement('div');
     const values = [];

@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
-const source = fs.readFileSync(path.join(__dirname, '../src/utils.js'), 'utf8')
+const source = fs.readFileSync(path.join(__dirname, '../src/util/enrolment-utils.js'), 'utf8')
   .replace(/import .*?;\n/g, '')
   .replaceAll('export function ', 'function ');
 const names = [

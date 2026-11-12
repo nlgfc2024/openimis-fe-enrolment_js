@@ -8,7 +8,7 @@ const messages = require('../src/translations/en.json');
 
 const relayId = (id) => Buffer.from(`BenefitPlanGQLType:${id}`).toString('base64');
 const decodeId = (value) => Buffer.from(value, 'base64').toString().split(':')[1];
-const utils = load(path.join(__dirname, '../src/utils.js'), { '@openimis/fe-core': { decodeId } });
+const utils = load(path.join(__dirname, '../src/util/enrolment-utils.js'), { '@openimis/fe-core': { decodeId } });
 const fill = (key, values = {}) => (messages[key] || key).replace(/\{(\w+)\}/g, (_, name) => values[name]);
 const plain = ({ children }) => React.createElement('span', null, children);
 let queries;
@@ -23,7 +23,7 @@ const { default: ProgrammeProfileSummary } = load(path.join(__dirname, '../src/c
     useTranslations: () => ({ formatMessage: (key) => messages[key] || key, formatMessageWithValues: fill }),
     useGraphqlQuery: (query, variables) => { queries.push(variables); return response; },
   },
-  '../utils': utils,
+  '../util/enrolment-utils': utils,
 });
 const render = (props, profile) => {
   queries = [];

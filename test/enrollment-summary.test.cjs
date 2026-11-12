@@ -6,7 +6,7 @@ const { renderToStaticMarkup } = require('react-dom/server');
 const load = require('./load-es-module.cjs');
 const messages = require('../src/translations/en.json');
 const plain = ({ children }) => React.createElement('span', null, children);
-const utils = load(path.join(__dirname, '../src/utils.js'), { '@openimis/fe-core': { decodeId: (id) => id } });
+const utils = load(path.join(__dirname, '../src/util/enrolment-utils.js'), { '@openimis/fe-core': { decodeId: (id) => id } });
 const fill = (key, values) => (messages[key] || key).replace(/\{(\w+)\}/g, (_, name) => values[name]);
 const Summary = load(path.join(__dirname, '../src/components/EnrollmentSummary.jsx'), {
   '@material-ui/core': { Grid: plain, Paper: plain, Typography: plain },
@@ -15,7 +15,7 @@ const Summary = load(path.join(__dirname, '../src/components/EnrollmentSummary.j
     useModulesManager: () => ({}),
     useTranslations: () => ({ formatMessage: (key) => messages[key] || key, formatMessageWithValues: fill }),
   },
-  '../utils': utils,
+  '../util/enrolment-utils': utils,
 }).default;
 const render = (summary, household = true) => renderToStaticMarkup(React.createElement(Summary, { summary, household }));
 test('household cards show stock, target and eligible pool without old registry cards', () => {
