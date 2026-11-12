@@ -35,3 +35,14 @@ Also enable the same flag in backend `enrolment` configuration: the backend rema
 authoritative and rejects district requests while disabled. No Phase schema or
 Social Protection creation-default edits are needed. Saved district operator values
 are omitted while the frontend flag is disabled; stale previews are invalidated.
+
+## Enrolment summary
+
+The enrolment preview shows which enrolment profile applied, how many eligible
+records fell below the profile's `minimum_score`, how each reserved-place bucket
+filled, and the household member each GROUP sort reads (for example
+`head: household_pmt_score asc`). These come from the backend summary fields
+`programmeProfile`, `belowMinimumScore` and `quotaFill`.
+
+These need the backend Enrolment module with the summary fields
+(nlgfc2024/openimis-be-enrolment_py#11).

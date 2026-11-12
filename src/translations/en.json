@@ -72,5 +72,12 @@
   "enrolment.cards.households.verifiedUnenrolledHouseholds": "Verified unenrolled households",
   "enrolment.cards.households.phaseTarget": "Phase target",
   "enrolment.cards.households.enrolledHouseholds": "Enrolled households",
-  "enrolment.targetNotConfigured": "Not configured"
+  "enrolment.targetNotConfigured": "Not configured",
+  "enrolment.weightedScore": "weighted score",
+  "enrolment.noProgrammeProfile": "None",
+  "enrolment.cards.programmeProfile": "Enrolment profile applied",
+  "enrolment.cards.belowMinimumScore": "Eligible but below the minimum score of {minimumScore}",
+  "enrolment.quotaFill": "Reserved places",
+  "enrolment.quotaFill.bucket": "{key}: {filled} of {reserved} reserved places filled",
+  "enrolment.quotaFill.unreserved": "{unreserved} places filled by the next ranked candidates"
 }

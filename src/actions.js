@@ -14,6 +14,7 @@ const INDIVIDUAL_SUMMARY_PROJECTION = [
   'numberOfIndividualsAssignedToSelectedProgramme',
   'numberOfIndividualsToUpload',
   'poolSize', 'capApplied', 'willEnrol', 'enrolmentRanking', 'percentage',
+  'belowMinimumScore', 'programmeProfile', 'quotaFill',
 ];
 
 const GROUP_SUMMARY_PROJECTION = [
@@ -25,6 +26,7 @@ const GROUP_SUMMARY_PROJECTION = [
   'numberOfGroupsAssignedToSelectedProgramme',
   'numberOfGroupsToUpload',
   'poolSize', 'capApplied', 'willEnrol', 'enrolmentRanking', 'percentage',
+  'belowMinimumScore', 'programmeProfile', 'quotaFill',
 ];
 
 export function fetchIndividualEnrollmentSummary(params) {

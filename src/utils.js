@@ -140,3 +140,26 @@ export function enrolmentFilterDefinitions(definitions = [], household, enabled)
 export function enabledOperatorFilters(filters = [], household, enabled) {
   return filters.filter((entry) => entry.field !== 'district_id' || (household && enabled === true));
 }
+
+export function parseJsonValue(value, fallback = null) {
+  if (typeof value !== 'string') return value ?? fallback;
+  try {
+    return JSON.parse(value) ?? fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+
+const WEIGHTED_SCORE_FIELD = '_weighted_score';
+
+// Sort keys as the profile ranking writes them, with the household member a
+// GROUP sort reads, for example "head: household_pmt_score asc".
+export function describeOrderBy(orderBy, weightedScoreLabel = WEIGHTED_SCORE_FIELD) {
+  return (Array.isArray(orderBy) ? orderBy : []).map((entry) => {
+    const item = typeof entry === 'string'
+      ? { field: entry.replace(/^-/, ''), direction: entry.startsWith('-') ? 'desc' : 'asc' }
+      : entry || {};
+    const field = item.field === WEIGHTED_SCORE_FIELD ? weightedScoreLabel : item.field;
+    return `${item.subject ? `${item.subject}: ` : ''}${field} ${item.direction || 'asc'}`;
+  }).join(', ');
+}
