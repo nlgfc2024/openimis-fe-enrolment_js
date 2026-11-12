@@ -91,21 +91,52 @@ test('config enables district without a schema and disabling it clears the curre
   await act(async () => ReactDOM.unmountComponentAtNode(container)); container.remove();
 });
 
-test('the profile rules for the selected Phase and status show with the mandatory criteria', async () => {
+test('the enrolment rules replace the Phase criteria rows on the form', async () => {
   const container = document.createElement('div'); document.body.appendChild(container);
   const props = {
     intl: {}, household: false, object: { id: 'phase-a', name: 'A' }, objectToSave: {}, customFilters: [],
-    moduleName: 'individual', objectType: 'Individual', edited: { status: 'POTENTIAL', benefitPlan: { id: 'phase-a' } },
+    moduleName: 'individual', objectType: 'Individual',
+    edited: {
+      status: 'POTENTIAL',
+      benefitPlan: { id: 'phase-a', jsonExt: JSON.stringify({ advanced_criteria: { POTENTIAL: [{ custom_filter_condition: 'fit_for_work__exact__integer=1' }] } }) },
+    },
     fetchCustomFilter: noop, setAppliedCustomFilters: noop, setAppliedFiltersRowStructure: noop, updateAttributes: noop,
     clearEnrollmentSummary: noop, clearConfirm: noop, coreAlert: noop, coreConfirm: noop, rights: [],
   };
   profileProps = null;
+  rowProps = null;
   await act(async () => { ReactDOM.render(React.createElement(Form, props), container); });
-  assert.deepEqual(profileProps, { benefitPlanId: 'phase-a', status: 'POTENTIAL' });
+  assert.deepEqual(profileProps, { benefitPlanId: 'phase-a', status: 'POTENTIAL', household: false });
+  assert.equal(rowProps, null);
   profileProps = null;
   await act(async () => {
     ReactDOM.render(React.createElement(Form, { ...props, enrollmentUi: { show_mandatory_criteria_summary: false } }), container);
   });
   assert.equal(profileProps, null);
+  await act(async () => ReactDOM.unmountComponentAtNode(container)); container.remove();
+});
+
+test('filtering on the verification field warns that the household check still applies', async () => {
+  const container = document.createElement('div'); document.body.appendChild(container);
+  const props = {
+    intl: {}, household: true, object: { id: 'phase-a', name: 'A' }, customFilters: [],
+    moduleName: 'individual', objectType: 'Group', edited: { status: 'ACTIVE', benefitPlan: { id: 'phase-a' } },
+    fetchCustomFilter: noop, setAppliedCustomFilters: noop, setAppliedFiltersRowStructure: noop, updateAttributes: noop,
+    clearEnrollmentSummary: noop, clearConfirm: noop, coreAlert: noop, coreConfirm: noop, rights: [],
+  };
+  const saved = (field) => ({
+    jsonExt: JSON.stringify({ advanced_criteria: { ACTIVE: [{ custom_filter_condition: `${field}__exact__string="VERIFIED"` }] } }),
+  });
+  const show = async (objectToSave, enrollmentUi) => {
+    await act(async () => { ReactDOM.render(React.createElement(Form, { ...props, objectToSave, enrollmentUi }), container); });
+    return container.textContent.includes('enrolment.membershipRule.groups');
+  };
+  assert.equal(await show(saved('validation_status')), true);
+  await act(async () => ReactDOM.unmountComponentAtNode(container));
+  assert.equal(await show(saved('individual__validation_status')), true);
+  await act(async () => ReactDOM.unmountComponentAtNode(container));
+  assert.equal(await show(saved('sex')), false);
+  await act(async () => ReactDOM.unmountComponentAtNode(container));
+  assert.equal(await show(saved('validation_status'), { show_advanced_operator_filters: false }), false);
   await act(async () => ReactDOM.unmountComponentAtNode(container)); container.remove();
 });

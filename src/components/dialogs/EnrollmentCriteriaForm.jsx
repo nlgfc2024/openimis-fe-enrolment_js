@@ -21,7 +21,7 @@ import GroupPreviewEnrollmentDialog from './GroupPreviewEnrollmentDialog';
 import { CLEARED_STATE_FILTER, INDIVIDUAL } from '../../constants';
 import {
   createEnrollmentCriteriaState, createPreviewSelectionKey, createPreviewSnapshot,
-  enrolmentFilterDefinitions, enabledOperatorFilters,
+  enrolmentFilterDefinitions, enabledOperatorFilters, filtersOnFields,
   isBase64Encoded, isEmptyObject, normalizeAdvancedCriteria, previewMatchesSelection,
   safeParseJsonObject, toCustomFilterConditions, toGraphQLStringLiterals, updateEnrollmentJsonExt,
 } from '../../util/enrolment-utils';
@@ -83,6 +83,8 @@ export function EnrollmentCriteriaForm({
   const districtEnabled = household && enrollmentUi?.enable_household_district_filter === true;
   const availableFilters = enrolmentFilterDefinitions(customFilters, household, districtEnabled);
   const visibleOperators = enabledOperatorFilters(operatorFilters, household, districtEnabled);
+  const filtersOnVerification = showOperatorFilters
+    && filtersOnFields(visibleOperators, enrollmentUi?.verification_filter_fields ?? ['validation_status']);
   const operatorConditions = useMemo(
     () => (showOperatorFilters ? toCustomFilterConditions(enabledOperatorFilters(operatorFilters, household, districtEnabled)) : []),
     [operatorFilters, showOperatorFilters, household, districtEnabled],
@@ -254,19 +256,20 @@ export function EnrollmentCriteriaForm({
       <LoadingBackdrop open={isSubmitting || isPreviewing} aria-label={formatMessage(intl, 'core', 'loading')}>
         <CircularProgress color="inherit" />
       </LoadingBackdrop>
-      {showMandatoryCriteria && phaseCriteria.length > 0 && <Typography variant="subtitle1">{formatMessage(intl, 'enrolment', 'enrolment.mandatoryCriteria')}</Typography>}
-      {showMandatoryCriteria && phaseCriteria.map((filter, index) => (
-        <AdvancedCriteriaRowValue key={`mandatory-${filter.custom_filter_condition || index}`} customFilters={availableFilters}
-          currentFilter={filter} setCurrentFilter={setCurrentFilter} index={index} filters={filters}
-          setFilters={updateOperatorFilters} readOnly />
-      ))}
-      {showMandatoryCriteria && <ProgrammeProfileSummary benefitPlanId={benefitPlanId} status={status} />}
+      {/* The Phase's saved criteria still apply in the backend; the enrolment rules
+          below are the single place the form describes eligibility. */}
+      {showMandatoryCriteria && <ProgrammeProfileSummary benefitPlanId={benefitPlanId} status={status} household={!!household} />}
       {showOperatorFilters && <Typography variant="subtitle1">{formatMessage(intl, 'enrolment', 'enrolment.additionalFilters')}</Typography>}
       {showOperatorFilters && visibleOperators.map((filter, index) => (
         <AdvancedCriteriaRowValue key={`operator-${index}`} customFilters={availableFilters} currentFilter={filter}
           setCurrentFilter={setCurrentFilter} index={phaseCriteria.length + index} filters={filters}
           setFilters={updateOperatorFilters} readOnly={isSubmitting} />
       ))}
+      {filtersOnVerification && (
+        <Alert severity="warning">
+          {formatMessage(intl, 'enrolment', household ? 'enrolment.membershipRule.groups' : 'enrolment.membershipRule.individuals')}
+        </Alert>
+      )}
       <Actions>
         {showOperatorFilters && <>
           <Button startIcon={<AddCircle />} onClick={addFilter} disabled={isSubmitting} color="primary">{formatMessage(intl, 'enrolment', 'enrolment.addFilters')}</Button>
@@ -277,7 +280,7 @@ export function EnrollmentCriteriaForm({
       <Divider />
       {previewError && <Alert severity="error">{errorMessage(previewError, formatMessage(intl, 'enrolment', 'enrolment.previewFailed'))}</Alert>}
       {validPreview && previewSummary && <div>
-        <EnrollmentSummary summary={previewSummary} household={household} />
+        <EnrollmentSummary summary={previewSummary} household={household} rulesShown={showMandatoryCriteria} />
         <SummaryActions>
           <Button onClick={openConfirmation} variant="contained" color="primary" disabled={isSubmitting || selectedCount === 0}>{formatMessage(intl, 'enrolment', 'enrolment.confirmEnrollment')}</Button>
           <PreviewDialog rights={rights} advancedCriteria={toGraphQLStringLiterals(preview.conditions)}
