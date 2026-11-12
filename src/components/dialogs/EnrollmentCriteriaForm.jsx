@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AdvancedCriteriaRowValue from './AdvancedCriteriaRowValue';
 import EnrollmentSummary from '../EnrollmentSummary';
+import ProgrammeProfileSummary from '../ProgrammeProfileSummary';
 import IndividualPreviewEnrollmentDialog from './IndividualPreviewEnrollmentDialog';
 import GroupPreviewEnrollmentDialog from './GroupPreviewEnrollmentDialog';
 import { CLEARED_STATE_FILTER, INDIVIDUAL } from '../../constants';
@@ -259,6 +260,7 @@ export function EnrollmentCriteriaForm({
           currentFilter={filter} setCurrentFilter={setCurrentFilter} index={index} filters={filters}
           setFilters={updateOperatorFilters} readOnly />
       ))}
+      {showMandatoryCriteria && <ProgrammeProfileSummary benefitPlanId={benefitPlanId} status={status} />}
       {showOperatorFilters && <Typography variant="subtitle1">{formatMessage(intl, 'enrolment', 'enrolment.additionalFilters')}</Typography>}
       {showOperatorFilters && visibleOperators.map((filter, index) => (
         <AdvancedCriteriaRowValue key={`operator-${index}`} customFilters={availableFilters} currentFilter={filter}
