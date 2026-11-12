@@ -20,6 +20,9 @@ const DEFAULT_ENROLLMENT_UI = {
   show_mandatory_criteria_summary: true,
   show_advanced_operator_filters: true,
   show_enrollment_guidance: true,
+  // Operator filters on these fields get a warning that the backend's own
+  // verification check still applies (backend registry_*_verification_field).
+  verification_filter_fields: ['validation_status'],
 };
 
 const DEFAULT_CONFIG = {

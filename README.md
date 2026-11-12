@@ -38,21 +38,30 @@ are omitted while the frontend flag is disabled; stale previews are invalidated.
 
 ## Enrolment summary and profile rules
 
-The enrolment preview shows which enrolment profile applied, how many eligible
-records fell below the profile's `minimum_score`, how each reserved-place bucket
-filled, and the household member each GROUP sort reads (for example
-`head: household_pmt_score asc`). These come from the backend summary fields
-`programmeProfile`, `belowMinimumScore` and `quotaFill`.
+`ProgrammeProfileSummary` shows the enrolment rules that apply to a benefit
+plan and beneficiary status: the profile's eligibility criteria with their
+subjects, its ranking (score items, minimum score, sort order, quotas and
+limit), and why the benefit plan's type cannot use the profile, if it cannot.
+It uses the backend `enrolmentProgrammeProfile` query, which needs the benefit
+plan read right. It is published as `enrolment.ProgrammeProfileSummary` with
+props `benefitPlanId` (UUID or Relay ID) and `status`; pass `household` (true or
+false) to list the fixed backend rules (verified, primary worker or no active
+household) with the profile criteria.
 
-`ProgrammeProfileSummary` shows, read-only, the profile rules that apply to a
-benefit plan and beneficiary status: the profile's eligibility criteria with
-their subjects, its ranking (score items, minimum score, sort order, reserved
-places and limit), and why the benefit plan's type cannot use the profile, if
-it cannot. It uses the backend `enrolmentProgrammeProfile` query, which needs
-the benefit plan read right. The enrolment form shows it with the mandatory
-criteria (hidden with `show_mandatory_criteria_summary: false`), and it is
-published as `enrolment.ProgrammeProfileSummary` with props `benefitPlanId`
-(UUID or Relay ID) and `status`, for the Social Protection Phase page.
+On the enrolment form these rules replace the read-only rows of the benefit
+plan's saved criteria, which the backend still applies. Hide them with
+`show_mandatory_criteria_summary: false`. When an operator filter reads one of
+`enrollment_ui.verification_filter_fields` (default `["validation_status"]`, the
+backend `registry_*_verification_field`), the form warns that the fixed
+membership restriction still applies.
+
+While the rules are shown, the enrolment preview shows results only: how many
+eligible records fell below the profile's `minimum_score` and the quota
+allocation (places filled through each quota and from the rest of the ranked
+list, each as a share of the selected records). With the rules hidden it
+also shows the profile applied, the sort order (naming the household member a
+GROUP sort reads) and the membership restriction. These come from the backend
+summary fields `programmeProfile`, `belowMinimumScore` and `quotaFill`.
 
 These need the backend Enrolment module with the summary fields and the
 profile query (nlgfc2024/openimis-be-enrolment_py#11).

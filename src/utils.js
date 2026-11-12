@@ -141,6 +141,13 @@ export function enabledOperatorFilters(filters = [], household, enabled) {
   return filters.filter((entry) => entry.field !== 'district_id' || (household && enabled === true));
 }
 
+// Whether an operator filter reads one of the given fields, directly or through
+// a relation (for example individual__validation_status).
+export function filtersOnFields(filters = [], fields = []) {
+  return filters.some((entry) => typeof entry?.field === 'string'
+    && fields.includes(entry.field.split('__').pop()));
+}
+
 export function parseJsonValue(value, fallback = null) {
   if (typeof value !== 'string') return value ?? fallback;
   try {
@@ -150,29 +157,55 @@ export function parseJsonValue(value, fallback = null) {
   }
 }
 
-const WEIGHTED_SCORE_FIELD = '_weighted_score';
+// Rule parts that have a translation; anything else (json_ext field names,
+// configured values) is shown as configured.
+const RULE_LABELS = {
+  subject: ['household', 'head', 'primary_worker', 'any_member'],
+  direction: ['asc', 'desc'],
+  field: ['_weighted_score'],
+  source: ['HOUSEHOLD_HEAD', 'PRIMARY_WORKER', 'SELF'],
+};
+
+export function ruleLabeller(formatMessage) {
+  return (kind, value) => (
+    RULE_LABELS[kind]?.includes(value) ? formatMessage(`enrolment.rule.${kind}.${value}`) : value
+  );
+}
+
+const keepValue = (kind, value) => value;
+
+// The candidate itself (self) needs no prefix; members and the household do.
+function subjectPrefix(subject, label) {
+  return subject && subject !== 'self' ? `${label('subject', subject)}: ` : '';
+}
 
 // Sort keys as the profile ranking writes them, with the household member a
-// GROUP sort reads, for example "head: household_pmt_score asc".
-export function describeOrderBy(orderBy, weightedScoreLabel = WEIGHTED_SCORE_FIELD) {
+// GROUP sort reads, for example "Household head: household_pmt_score (lowest first)".
+export function describeOrderBy(orderBy, label = keepValue) {
   return (Array.isArray(orderBy) ? orderBy : []).map((entry) => {
     const item = typeof entry === 'string'
       ? { field: entry.replace(/^-/, ''), direction: entry.startsWith('-') ? 'desc' : 'asc' }
       : entry || {};
-    const field = item.field === WEIGHTED_SCORE_FIELD ? weightedScoreLabel : item.field;
-    return `${item.subject ? `${item.subject}: ` : ''}${field} ${item.direction || 'asc'}`;
+    return `${subjectPrefix(item.subject, label)}${label('field', item.field)} (${label('direction', item.direction || 'asc')})`;
   }).join(', ');
+}
+
+// The value a rule reads, for example "Household head: age".
+export function describeTarget(item, label = keepValue) {
+  return `${subjectPrefix(item?.subject, label)}${item?.field || item?.derived}`;
 }
 
 const FILTER_SYMBOLS = {
   exact: '=', iexact: '=', lt: '<', lte: '≤', gt: '>', gte: '≥',
 };
 
-// A profile criterion or quota condition, for example "primary_worker: age ≥ 18".
-export function describeCriterion(criterion) {
+export function filterSymbol(filter) {
+  return FILTER_SYMBOLS[filter] || filter || '=';
+}
+
+// A profile criterion or quota condition, for example "Primary worker: age ≥ 18".
+export function describeCriterion(criterion, label = keepValue) {
   if (!criterion || typeof criterion !== 'object') return '';
-  const name = criterion.field || criterion.derived;
-  const operator = FILTER_SYMBOLS[criterion.filter] || criterion.filter || '=';
   const value = Array.isArray(criterion.value) ? criterion.value.join(', ') : criterion.value;
-  return `${criterion.subject ? `${criterion.subject}: ` : ''}${name} ${operator} ${value}`;
+  return `${describeTarget(criterion, label)} ${filterSymbol(criterion.filter)} ${value}`;
 }
