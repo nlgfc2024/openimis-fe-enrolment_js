@@ -163,3 +163,16 @@ export function describeOrderBy(orderBy, weightedScoreLabel = WEIGHTED_SCORE_FIE
     return `${item.subject ? `${item.subject}: ` : ''}${field} ${item.direction || 'asc'}`;
   }).join(', ');
 }
+
+const FILTER_SYMBOLS = {
+  exact: '=', iexact: '=', lt: '<', lte: '≤', gt: '>', gte: '≥',
+};
+
+// A profile criterion or quota condition, for example "primary_worker: age ≥ 18".
+export function describeCriterion(criterion) {
+  if (!criterion || typeof criterion !== 'object') return '';
+  const name = criterion.field || criterion.derived;
+  const operator = FILTER_SYMBOLS[criterion.filter] || criterion.filter || '=';
+  const value = Array.isArray(criterion.value) ? criterion.value.join(', ') : criterion.value;
+  return `${criterion.subject ? `${criterion.subject}: ` : ''}${name} ${operator} ${value}`;
+}

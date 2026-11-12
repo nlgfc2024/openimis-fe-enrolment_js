@@ -15,6 +15,7 @@ const plain = ({ children, ...props }) => React.createElement('div', null, child
 const button = ({ children, onClick, disabled }) => React.createElement('button', { onClick, disabled }, children);
 const noop = () => {};
 let rowProps;
+let profileProps;
 const Form = load(path.join(__dirname, '../src/components/dialogs/EnrollmentCriteriaForm.jsx'), {
   '@material-ui/core': { Backdrop: plain, Button: button, CircularProgress: plain, Divider: plain, Typography: plain },
   '@material-ui/core/styles': { styled: (component) => () => component },
@@ -22,6 +23,7 @@ const Form = load(path.join(__dirname, '../src/components/dialogs/EnrollmentCrit
   '@openimis/fe-core': { decodeId: (id) => id, formatMessage: (_intl, _module, key) => key, formatMessageWithValues: (_intl, _module, key) => key },
   'react-intl': { injectIntl: (component) => component }, 'react-redux': { connect: () => (component) => component },
   './AdvancedCriteriaRowValue': { __esModule: true, default: (props) => { rowProps = props; return null; } }, '../EnrollmentSummary': { __esModule: true, default: ({ summary }) => React.createElement('output', null, summary.willEnrol) },
+  '../ProgrammeProfileSummary': { __esModule: true, default: (props) => { profileProps = props; return null; } },
   './IndividualPreviewEnrollmentDialog': { __esModule: true, default: plain }, './GroupPreviewEnrollmentDialog': { __esModule: true, default: plain },
   '../../constants': { CLEARED_STATE_FILTER: { field: '', filter: '', type: '', value: '' }, INDIVIDUAL: 'Individual' },
   'redux': { bindActionCreators: (actions) => actions }, '../../utils': utils, '../../actions': {},
@@ -86,5 +88,24 @@ test('config enables district without a schema and disabling it clears the curre
   assert.equal(container.querySelector('output'), null);
   await preview();
   assert.ok(!queries[1].join(' ').includes('district_id'));
+  await act(async () => ReactDOM.unmountComponentAtNode(container)); container.remove();
+});
+
+test('the profile rules for the selected Phase and status show with the mandatory criteria', async () => {
+  const container = document.createElement('div'); document.body.appendChild(container);
+  const props = {
+    intl: {}, household: false, object: { id: 'phase-a', name: 'A' }, objectToSave: {}, customFilters: [],
+    moduleName: 'individual', objectType: 'Individual', edited: { status: 'POTENTIAL', benefitPlan: { id: 'phase-a' } },
+    fetchCustomFilter: noop, setAppliedCustomFilters: noop, setAppliedFiltersRowStructure: noop, updateAttributes: noop,
+    clearEnrollmentSummary: noop, clearConfirm: noop, coreAlert: noop, coreConfirm: noop, rights: [],
+  };
+  profileProps = null;
+  await act(async () => { ReactDOM.render(React.createElement(Form, props), container); });
+  assert.deepEqual(profileProps, { benefitPlanId: 'phase-a', status: 'POTENTIAL' });
+  profileProps = null;
+  await act(async () => {
+    ReactDOM.render(React.createElement(Form, { ...props, enrollmentUi: { show_mandatory_criteria_summary: false } }), container);
+  });
+  assert.equal(profileProps, null);
   await act(async () => ReactDOM.unmountComponentAtNode(container)); container.remove();
 });

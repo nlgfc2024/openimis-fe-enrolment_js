@@ -36,7 +36,7 @@ authoritative and rejects district requests while disabled. No Phase schema or
 Social Protection creation-default edits are needed. Saved district operator values
 are omitted while the frontend flag is disabled; stale previews are invalidated.
 
-## Enrolment summary
+## Enrolment summary and profile rules
 
 The enrolment preview shows which enrolment profile applied, how many eligible
 records fell below the profile's `minimum_score`, how each reserved-place bucket
@@ -44,5 +44,15 @@ filled, and the household member each GROUP sort reads (for example
 `head: household_pmt_score asc`). These come from the backend summary fields
 `programmeProfile`, `belowMinimumScore` and `quotaFill`.
 
-These need the backend Enrolment module with the summary fields
-(nlgfc2024/openimis-be-enrolment_py#11).
+`ProgrammeProfileSummary` shows, read-only, the profile rules that apply to a
+benefit plan and beneficiary status: the profile's eligibility criteria with
+their subjects, its ranking (score items, minimum score, sort order, reserved
+places and limit), and why the benefit plan's type cannot use the profile, if
+it cannot. It uses the backend `enrolmentProgrammeProfile` query, which needs
+the benefit plan read right. The enrolment form shows it with the mandatory
+criteria (hidden with `show_mandatory_criteria_summary: false`), and it is
+published as `enrolment.ProgrammeProfileSummary` with props `benefitPlanId`
+(UUID or Relay ID) and `status`, for the Social Protection Phase page.
+
+These need the backend Enrolment module with the summary fields and the
+profile query (nlgfc2024/openimis-be-enrolment_py#11).

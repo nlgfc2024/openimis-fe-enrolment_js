@@ -11,6 +11,7 @@ import { RIGHT_GROUP_CREATE, RIGHT_INDIVIDUAL_CREATE } from './constants';
 import GroupEnrolmentMenu from './components/GroupEnrolmentMenu';
 import IndividualEnrolmentMenu from './components/IndividualEnrolmentMenu';
 import AdvancedCriteriaRowValue from './components/dialogs/AdvancedCriteriaRowValue';
+import ProgrammeProfileSummary from './components/ProgrammeProfileSummary';
 
 const ROUTE_INDIVIDUAL_ENROLMENT = 'enrolment/individuals';
 const ROUTE_GROUP_ENROLMENT = 'enrolment/groups';
@@ -82,6 +83,7 @@ const DEFAULT_CONFIG = {
     { key: 'enrolment.route.individual', ref: ROUTE_INDIVIDUAL_ENROLMENT },
     { key: 'enrolment.route.group', ref: ROUTE_GROUP_ENROLMENT },
     { key: 'enrolment.AdvancedCriteriaRowValue', ref: AdvancedCriteriaRowValue },
+    { key: 'enrolment.ProgrammeProfileSummary', ref: ProgrammeProfileSummary },
     { key: 'individual.route.enrollment', ref: ROUTE_INDIVIDUAL_ENROLMENT },
     { key: 'individual.route.groupEnrollment', ref: ROUTE_GROUP_ENROLMENT },
   ],
