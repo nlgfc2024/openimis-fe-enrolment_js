@@ -63,5 +63,5 @@ also shows the profile applied, the sort order (naming the household member a
 GROUP sort reads) and the membership restriction. These come from the backend
 summary fields `programmeProfile`, `belowMinimumScore` and `quotaFill`.
 
-These need the backend Enrolment module with the summary fields and the
-profile query (nlgfc2024/openimis-be-enrolment_py#11).
+These need a backend Enrolment module that provides the summary fields and the
+`enrolmentProgrammeProfile` query.
