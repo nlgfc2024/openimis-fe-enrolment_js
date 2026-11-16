@@ -142,7 +142,11 @@ test('criteria phrases name the member only when the list does not already', () 
   assert.equal(eligibilityText({ subject: 'self', field: 'fit_for_work', filter: 'exact', value: '1' }, fill, label), 'fit for work');
   assert.equal(eligibilityText({ derived: 'age', filter: 'lte', value: 60 }, fill, label), 'age ≤ 60');
   assert.equal(eligibilityText({ subject: 'head', derived: 'age', filter: 'gte', value: 18 }, fill, label, 'primary_worker'), 'Household head age ≥ 18');
-  assert.equal(joinList(['a'], 'and'), 'a');
-  assert.equal(joinList(['a', 'b'], 'and'), 'a and b');
-  assert.equal(joinList(['a', 'b', 'c'], 'and'), 'a, b, and c');
+  assert.equal(joinList(['a'], fill), 'a');
+  assert.equal(joinList(['a', 'b'], fill), 'a and b');
+  assert.equal(joinList(['a', 'b', 'c'], fill), 'a, b, and c');
+  // The wording comes from the message keys, so a language pack can change it.
+  const reworded = (key, values) => (key === 'enrolment.rule.list.many' ? `${values.items} & ${values.last}` : fill(key, values));
+  assert.equal(joinList(['a', 'b', 'c'], reworded), 'a, b & c');
+  assert.equal(eligibilityText({ subject: 'head', derived: 'age', filter: 'gte', value: 18 }, reworded, utils.ruleLabeller(message)), 'Household head age ≥ 18');
 });

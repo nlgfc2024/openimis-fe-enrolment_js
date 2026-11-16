@@ -85,15 +85,25 @@ export function eligibilityText(criterion, formatMessageWithValues, label, impli
   const subject = criterion.subject && !['self', impliedSubject].includes(criterion.subject)
     ? label('subject', criterion.subject) : null;
   const flag = criterion.filter === 'exact' && FLAG_VALUES.includes(criterion.value);
-  const condition = flag ? name : `${name} ${filterSymbol(criterion.filter)} ${criterion.value}`;
+  const condition = flag ? name : formatMessageWithValues('enrolment.rule.condition', {
+    name, operator: filterSymbol(criterion.filter), value: criterion.value,
+  });
   if (!subject) return condition;
-  return flag ? formatMessageWithValues('enrolment.rule.flag', { subject, name }) : `${subject} ${condition}`;
+  return flag
+    ? formatMessageWithValues('enrolment.rule.flag', { subject, name })
+    : formatMessageWithValues('enrolment.rule.memberCondition', { subject, condition });
 }
 
-// "A, B, and C", as in the eligibility line.
-export function joinList(items, and) {
-  if (items.length < 3) return items.join(` ${and} `);
-  return `${items.slice(0, -1).join(', ')}, ${and} ${items[items.length - 1]}`;
+// "A, B, and C", as in the eligibility line, worded by the message keys.
+export function joinList(items, formatMessageWithValues) {
+  if (items.length < 2) return items.join('');
+  if (items.length === 2) {
+    return formatMessageWithValues('enrolment.rule.list.pair', { first: items[0], second: items[1] });
+  }
+  const separator = formatMessageWithValues('enrolment.rule.list.separator', {});
+  return formatMessageWithValues('enrolment.rule.list.many', {
+    items: items.slice(0, -1).join(separator), last: items[items.length - 1],
+  });
 }
 
 // The fixed backend rules, in the same short form as the profile criteria.
@@ -126,7 +136,7 @@ function ProfileRules({ benefitPlanId, status, household }) {
     ),
   ];
   const eligibility = items.length
-    ? capitalise(joinList(items, formatMessage('enrolment.rule.and')))
+    ? capitalise(joinList(items, formatMessageWithValues))
     : formatMessage('enrolment.profile.noCriteria');
   return (
     <Root>
