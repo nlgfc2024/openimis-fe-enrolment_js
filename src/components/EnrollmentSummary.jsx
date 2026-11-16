@@ -2,7 +2,9 @@ import React from 'react';
 import { Grid, Paper, Typography } from '@material-ui/core';
 import { useModulesManager, useTranslations } from '@openimis/fe-core';
 import { styled } from '@material-ui/core/styles';
-import { describeOrderBy, parseJsonValue, ruleLabeller } from '../utils';
+import {
+  describeOrderBy, parseJsonValue, percentShares, ruleLabeller,
+} from '../utils';
 
 const SummaryTitle = styled(Typography)(({ theme }) => ({ margin: theme.spacing(1.5, 0, 1) }));
 const SummaryCard = styled(Paper)(({ theme }) => ({
@@ -28,13 +30,16 @@ export default function EnrollmentSummary({ summary, household, rulesShown = fal
   const total = Number(selected);
   // Places filled through each quota, then the rest of the ranked list (Others),
   // each as a share of the records to be enrolled.
-  const allocation = Array.isArray(quotaFill?.buckets) && total > 0 ? [
+  const places = Array.isArray(quotaFill?.buckets) && total > 0 ? [
     ...quotaFill.buckets.map((bucket) => [
       ['female', 'youth'].includes(bucket.key) ? formatMessage(`enrolment.quotaFill.${bucket.key}`) : bucket.key,
       bucket.filled,
     ]),
     [formatMessage('enrolment.quotaFill.others'), quotaFill.unreserved ?? 0],
-  ].map(([name, count]) => ({ name, count, percentage: Math.round((Number(count) * 100) / total) })) : [];
+  ] : [];
+  // Rounded together, so the shares add up to 100 rather than 33 + 33 + 33.
+  const shares = percentShares(places.map(([, count]) => count), total);
+  const allocation = places.map(([name, count], index) => ({ name, count, percentage: shares[index] }));
   const cards = household ? [
     ['phaseTarget', summary.phaseTarget ?? formatMessage('enrolment.targetNotConfigured'), 3],
     ['enrolledHouseholds', summary.enrolledHouseholds, 3],

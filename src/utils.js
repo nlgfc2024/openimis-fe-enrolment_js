@@ -209,3 +209,19 @@ export function describeCriterion(criterion, label = keepValue) {
   const value = Array.isArray(criterion.value) ? criterion.value.join(', ') : criterion.value;
   return `${describeTarget(criterion, label)} ${filterSymbol(criterion.filter)} ${value}`;
 }
+
+// Whole-number percentages of total that add up to the counts' share of it
+// (100 when the counts make up the total): each share is rounded down, then the
+// points left over go to the largest remainders, the earlier one on a tie.
+export function percentShares(counts, total) {
+  if (!total) return counts.map(() => 0);
+  const exact = counts.map((count) => (Number(count) * 100) / total);
+  const shares = exact.map(Math.floor);
+  const target = Math.round(exact.reduce((sum, value) => sum + value, 0));
+  const leftOver = target - shares.reduce((sum, value) => sum + value, 0);
+  exact.map((value, index) => [value - shares[index], index])
+    .sort((a, b) => b[0] - a[0] || a[1] - b[1])
+    .slice(0, Math.max(0, leftOver))
+    .forEach(([, index]) => { shares[index] += 1; });
+  return shares;
+}
