@@ -182,3 +182,10 @@ test('field names use the criteria rows\' labels, else the field in words', () =
   assert.equal(nameOf('ubr_id'), 'UBR member ID');
   assert.equal(nameOf('household_pmt_score'), 'household pmt score');
 });
+
+test('quota shares are rounded together so they add up to 100', () => {
+  assert.deepEqual(utils.percentShares([1, 1, 1], 3), [34, 33, 33]);
+  assert.deepEqual(utils.percentShares([4, 2, 6], 12), [33, 17, 50]);
+  assert.deepEqual(utils.percentShares([2, 1], 3), [67, 33]);
+  assert.deepEqual(utils.percentShares([0, 0], 0), [0, 0]);
+});
