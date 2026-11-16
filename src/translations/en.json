@@ -113,7 +113,11 @@
   "enrolment.rule.flag": "{subject} is {name}",
   "enrolment.quotaFill.share": "{name}: {count}, representing {percentage}%",
   "enrolment.quotaFill.others": "Others",
-  "enrolment.rule.and": "and",
+  "enrolment.rule.condition": "{name} {operator} {value}",
+  "enrolment.rule.memberCondition": "{subject} {condition}",
+  "enrolment.rule.list.pair": "{first} and {second}",
+  "enrolment.rule.list.many": "{items}, and {last}",
+  "enrolment.rule.list.separator": ", ",
   "enrolment.rule.builtIn.verified": "verified",
   "enrolment.rule.builtIn.primaryWorker": "primary worker",
   "enrolment.rule.builtIn.noHousehold": "not in an active household"
