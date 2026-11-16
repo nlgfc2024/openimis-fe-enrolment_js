@@ -13,15 +13,18 @@ const message = (key) => messages[key] || key;
 const fill = (key, values = {}) => message(key).replace(/\{(\w+)\}/g, (_, name) => values[name]);
 const plain = ({ children }) => React.createElement('span', null, children);
 let queries;
+const coreMessages = { 'advancedFilters.fit_for_work': 'Fit for work', 'advancedFilters.ubr_id': 'UBR member ID' };
 let response;
-const { default: ProgrammeProfileSummary, eligibilityText, joinList } = load(path.join(__dirname, '../src/components/ProgrammeProfileSummary.jsx'), {
+const { default: ProgrammeProfileSummary, eligibilityText, joinList, fieldNamer } = load(path.join(__dirname, '../src/components/ProgrammeProfileSummary.jsx'), {
   '@material-ui/core': { CircularProgress: plain, Paper: plain, Typography: plain },
   '@material-ui/core/styles': { styled: (component) => () => component },
   '@material-ui/lab/Alert': { __esModule: true, default: plain },
   '@openimis/fe-core': {
     decodeId,
     useModulesManager: () => ({}),
-    useTranslations: () => ({ formatMessage: (key) => messages[key] || key, formatMessageWithValues: fill }),
+    useTranslations: (module) => (module === 'core'
+      ? { formatMessage: (key) => coreMessages[key] || key, formatMessageWithValues: fill }
+      : { formatMessage: (key) => messages[key] || key, formatMessageWithValues: fill }),
     useGraphqlQuery: (query, variables) => { queries.push(variables); return response; },
   },
   '../utils': utils,
@@ -149,4 +152,33 @@ test('criteria phrases name the member only when the list does not already', () 
   const reworded = (key, values) => (key === 'enrolment.rule.list.many' ? `${values.items} & ${values.last}` : fill(key, values));
   assert.equal(joinList(['a', 'b', 'c'], reworded), 'a, b & c');
   assert.equal(eligibilityText({ subject: 'head', derived: 'age', filter: 'gte', value: 18 }, reworded, utils.ruleLabeller(message)), 'Household head age ≥ 18');
+});
+
+test('the Phase\'s own criteria join the eligibility line, read on the household', () => {
+  const html = render({
+    benefitPlanId: 'plan-uuid',
+    status: 'ACTIVE',
+    household: true,
+    phaseCriteria: [
+      { field: 'fit_for_work', filter: 'exact', type: 'integer', value: '1' },
+      { field: 'validation_status', filter: 'exact', type: 'string', value: 'VERIFIED' },
+      { field: '', filter: '', type: '', value: '' },
+    ],
+  }, {
+    key: 'default',
+    criteria: JSON.stringify([{ subject: 'primary_worker', field: 'fit_for_work', filter: 'exact', type: 'integer', value: 1 }]),
+    ranking: null,
+  });
+  assert.ok(html.includes(
+    'Eligibility criteria: </strong>Verified, primary worker, fit for work, Household is fit for work, and Household validation status = VERIFIED',
+  ), html);
+  assert.ok(render({ benefitPlanId: 'plan-uuid', status: 'ACTIVE', household: false, phaseCriteria: [{ field: 'ubr_id', filter: 'exact', value: 'X' }] }, { key: null })
+    .includes('Eligibility criteria: </strong>Verified, not in an active household, and UBR member ID = X'));
+});
+
+test('field names use the criteria rows\' labels, else the field in words', () => {
+  const nameOf = fieldNamer((key) => coreMessages[key] || key);
+  assert.equal(nameOf('fit_for_work'), 'fit for work');
+  assert.equal(nameOf('ubr_id'), 'UBR member ID');
+  assert.equal(nameOf('household_pmt_score'), 'household pmt score');
 });

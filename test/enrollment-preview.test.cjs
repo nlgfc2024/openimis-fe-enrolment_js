@@ -106,7 +106,9 @@ test('the enrolment rules replace the Phase criteria rows on the form', async ()
   profileProps = null;
   rowProps = null;
   await act(async () => { ReactDOM.render(React.createElement(Form, props), container); });
-  assert.deepEqual(profileProps, { benefitPlanId: 'phase-a', status: 'POTENTIAL', household: false });
+  assert.deepEqual(profileProps.benefitPlanId, 'phase-a');
+  assert.deepEqual([profileProps.status, profileProps.household], ['POTENTIAL', false]);
+  assert.deepEqual(profileProps.phaseCriteria.map(({ field, filter, value }) => [field, filter, value]), [['fit_for_work', 'exact', '1']]);
   assert.equal(rowProps, null);
   profileProps = null;
   await act(async () => {
