@@ -76,12 +76,24 @@ export function rankingLines(ranking, formatMessage, formatMessageWithValues) {
 const FLAG_VALUES = [1, true, '1', 'true'];
 const words = (name) => String(name).replace(/_/g, ' ');
 const capitalise = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+// "Fit for work" reads "fit for work" inside a phrase; "UBR member ID" stays.
+const decapitalise = (text) => (/^[A-Z][a-z]/.test(text) ? text.charAt(0).toLowerCase() + text.slice(1) : text);
+
+// A field's label as the criteria rows show it (core advancedFilters.<field>),
+// else the field name in words.
+export function fieldNamer(formatCoreMessage) {
+  return (field) => {
+    const id = `advancedFilters.${field}`;
+    const text = formatCoreMessage(id);
+    return text && text !== id && text !== `core.${id}` ? decapitalise(text) : words(field);
+  };
+}
 
 // A profile criterion as a short phrase: "fit for work" for a yes/no flag,
 // "age ≥ 18" otherwise, led by the member it reads unless that member is
 // already named in the list (the primary worker of a household).
-export function eligibilityText(criterion, formatMessageWithValues, label, impliedSubject = null) {
-  const name = words(criterion.field || criterion.derived);
+export function eligibilityText(criterion, formatMessageWithValues, label, impliedSubject = null, nameOf = words) {
+  const name = criterion.field ? nameOf(criterion.field) : words(criterion.derived);
   const subject = criterion.subject && !['self', impliedSubject].includes(criterion.subject)
     ? label('subject', criterion.subject) : null;
   const flag = criterion.filter === 'exact' && FLAG_VALUES.includes(criterion.value);
@@ -114,9 +126,12 @@ function builtInRules(household, formatMessage) {
     : [formatMessage('enrolment.rule.builtIn.verified'), formatMessage('enrolment.rule.builtIn.noHousehold')];
 }
 
-function ProfileRules({ benefitPlanId, status, household }) {
+function ProfileRules({
+  benefitPlanId, status, household, phaseCriteria,
+}) {
   const modulesManager = useModulesManager();
   const { formatMessage, formatMessageWithValues } = useTranslations('enrolment', modulesManager);
+  const { formatMessage: formatCoreMessage } = useTranslations('core', modulesManager);
   const { isLoading, error, data } = useGraphqlQuery(PROGRAMME_PROFILE_QUERY, { benefitPlanId, status });
   const profile = data?.enrolmentProgrammeProfile;
   if (isLoading) {
@@ -129,10 +144,17 @@ function ProfileRules({ benefitPlanId, status, household }) {
   const ranking = parseJsonValue(profile.ranking);
   const reasons = profile.unsuitableReasons || [];
   const impliedSubject = household ? 'primary_worker' : null;
+  const nameOf = fieldNamer(formatCoreMessage);
+  // The Phase's own criteria are checked on the candidate's record: the
+  // household's on a household Phase.
+  const candidate = household ? 'household' : 'self';
   const items = [
     ...builtInRules(household, formatMessage),
     ...(Array.isArray(criteria) ? criteria : []).map(
-      (criterion) => eligibilityText(criterion, formatMessageWithValues, label, impliedSubject),
+      (criterion) => eligibilityText(criterion, formatMessageWithValues, label, impliedSubject, nameOf),
+    ),
+    ...(phaseCriteria || []).filter((criterion) => criterion?.field).map(
+      (criterion) => eligibilityText({ ...criterion, subject: candidate }, formatMessageWithValues, label, null, nameOf),
     ),
   ];
   const eligibility = items.length
@@ -177,9 +199,12 @@ function ProfileRules({ benefitPlanId, status, household }) {
 
 // The enrolment rules that apply to a Phase and beneficiary status. Published
 // as enrolment.ProgrammeProfileSummary for the Phase page. Pass household (true
-// or false) to list the fixed backend rules with the profile criteria.
-export default function ProgrammeProfileSummary({ benefitPlanId, status, household }) {
+// or false) to list the fixed backend rules with the profile criteria, and
+// phaseCriteria to list the Phase's own criteria too.
+export default function ProgrammeProfileSummary({
+  benefitPlanId, status, household, phaseCriteria,
+}) {
   const id = benefitPlanId && isBase64Encoded(benefitPlanId) ? decodeId(benefitPlanId) : benefitPlanId;
   if (!id || !status) return null;
-  return <ProfileRules benefitPlanId={id} status={status} household={household} />;
+  return <ProfileRules benefitPlanId={id} status={status} household={household} phaseCriteria={phaseCriteria} />;
 }

@@ -256,9 +256,11 @@ export function EnrollmentCriteriaForm({
       <LoadingBackdrop open={isSubmitting || isPreviewing} aria-label={formatMessage(intl, 'core', 'loading')}>
         <CircularProgress color="inherit" />
       </LoadingBackdrop>
-      {/* The Phase's saved criteria still apply in the backend; the enrolment rules
-          below are the single place the form describes eligibility. */}
-      {showMandatoryCriteria && <ProgrammeProfileSummary benefitPlanId={benefitPlanId} status={status} household={!!household} />}
+      {/* The enrolment rules, including the Phase's saved criteria, are the single
+          place the form describes eligibility. */}
+      {showMandatoryCriteria && (
+        <ProgrammeProfileSummary benefitPlanId={benefitPlanId} status={status} household={!!household} phaseCriteria={phaseCriteria} />
+      )}
       {showOperatorFilters && <Typography variant="subtitle1">{formatMessage(intl, 'enrolment', 'enrolment.additionalFilters')}</Typography>}
       {showOperatorFilters && visibleOperators.map((filter, index) => (
         <AdvancedCriteriaRowValue key={`operator-${index}`} customFilters={availableFilters} currentFilter={filter}

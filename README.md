@@ -49,7 +49,9 @@ false) to list the fixed backend rules (verified, primary worker or no active
 household) with the profile criteria.
 
 On the enrolment form these rules replace the read-only rows of the benefit
-plan's saved criteria, which the backend still applies. Hide them with
+plan's saved criteria: those criteria join the same eligibility line, labelled
+as the criteria rows label their fields (core `advancedFilters.<field>`) and
+read on the household on a household benefit plan. Hide the rules with
 `show_mandatory_criteria_summary: false`. When an operator filter reads one of
 `enrollment_ui.verification_filter_fields` (default `["validation_status"]`, the
 backend `registry_*_verification_field`), the form warns that the fixed
