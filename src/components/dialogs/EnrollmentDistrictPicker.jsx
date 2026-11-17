@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { PublishedComponent, graphql, encodeId, useModulesManager } from '@openimis/fe-core';
-import { districtLocationId } from '../../utils';
+import { districtLocationId } from '../../util/enrolment-utils';
 
 export default function EnrollmentDistrictPicker({ value, onChange, readOnly }) {
   const dispatch = useDispatch();
