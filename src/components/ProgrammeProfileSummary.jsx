@@ -7,7 +7,7 @@ import {
 } from '@openimis/fe-core';
 import {
   describeCriterion, describeOrderBy, describeTarget, filterSymbol, isBase64Encoded, parseJsonValue, ruleLabeller,
-} from '../utils';
+} from '../util/enrolment-utils';
 
 export const PROGRAMME_PROFILE_QUERY = `
   query EnrolmentProgrammeProfile($benefitPlanId: String!, $status: String!) {

@@ -10,7 +10,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const { act } = require('react-dom/test-utils');
 const load = require('./load-es-module.cjs');
-const utils = load(path.join(__dirname, '../src/utils.js'), { '@openimis/fe-core': { decodeId: (id) => id } });
+const utils = load(path.join(__dirname, '../src/util/enrolment-utils.js'), { '@openimis/fe-core': { decodeId: (id) => id } });
 const plain = ({ children, ...props }) => React.createElement('div', null, children);
 const button = ({ children, onClick, disabled }) => React.createElement('button', { onClick, disabled }, children);
 const noop = () => {};
@@ -26,7 +26,7 @@ const Form = load(path.join(__dirname, '../src/components/dialogs/EnrollmentCrit
   '../ProgrammeProfileSummary': { __esModule: true, default: (props) => { profileProps = props; return null; } },
   './IndividualPreviewEnrollmentDialog': { __esModule: true, default: plain }, './GroupPreviewEnrollmentDialog': { __esModule: true, default: plain },
   '../../constants': { CLEARED_STATE_FILTER: { field: '', filter: '', type: '', value: '' }, INDIVIDUAL: 'Individual' },
-  'redux': { bindActionCreators: (actions) => actions }, '../../utils': utils, '../../actions': {},
+  'redux': { bindActionCreators: (actions) => actions }, '../../util/enrolment-utils': utils, '../../actions': {},
 }).EnrollmentCriteriaForm;
 
 test('shared form ignores late results, rejects errors and requires preview for current phase/status', async () => {

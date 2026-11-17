@@ -4,7 +4,7 @@ import { useModulesManager, useTranslations } from '@openimis/fe-core';
 import { styled } from '@material-ui/core/styles';
 import {
   describeOrderBy, parseJsonValue, percentShares, ruleLabeller,
-} from '../utils';
+} from '../util/enrolment-utils';
 
 const SummaryTitle = styled(Typography)(({ theme }) => ({ margin: theme.spacing(1.5, 0, 1) }));
 const SummaryCard = styled(Paper)(({ theme }) => ({

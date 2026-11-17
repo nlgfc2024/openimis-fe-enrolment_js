@@ -24,7 +24,7 @@ import {
   enrolmentFilterDefinitions, enabledOperatorFilters, filtersOnFields,
   isBase64Encoded, isEmptyObject, normalizeAdvancedCriteria, previewMatchesSelection,
   safeParseJsonObject, toCustomFilterConditions, toGraphQLStringLiterals, updateEnrollmentJsonExt,
-} from '../../utils';
+} from '../../util/enrolment-utils';
 import {
   clearEnrollmentSummary, confirmEnrollment, confirmGroupEnrollment,
   fetchGroupEnrollmentSummary, fetchIndividualEnrollmentSummary,
